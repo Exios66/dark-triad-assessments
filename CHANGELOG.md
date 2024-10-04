@@ -34,6 +34,8 @@
   - Factor Analysis (PCA)
   - Descriptive Statistics (mean, median, mode, std, min, max)
 - Enhanced data visualization for new statistical analyses
+- New "History and Background" section providing information on the Dark Triad concept
+- Cyberpunk-inspired color scheme for both light and dark modes
 
 ### Changed
 
@@ -42,6 +44,8 @@
 - Modified export function to include patient ID and timestamp
 - Updated UI to include a new Statistics section in the main menu
 - Updated Repository Wiki link in the footer to the correct GitHub wiki page
+- Updated UI with a more modern and sleek appearance
+- Enhanced color contrast for better readability
 
 ### Fixed
 

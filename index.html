@@ -9,13 +9,27 @@
     <link href="https://fonts.googleapis.com/css2?family=Lato:wght@400;700&family=Roboto:wght@400;700&display=swap" rel="stylesheet">
     <style>
         :root {
-            --primary-color: #3498db;
-            --secondary-color: #2ecc71;
-            --background-color: #f4f4f4;
-            --text-color: #333;
-            --button-hover-color: #2980b9;
-            --assessment-bg: #fff;
+            --primary-color: #00ffff;
+            --secondary-color: #ff00ff;
+            --background-color: #f0f0f0;
+            --text-color: #333333;
+            --button-hover-color: #00cccc;
+            --assessment-bg: #ffffff;
             --assessment-shadow: rgba(0, 0, 0, 0.1);
+            --nav-bg: #333333;
+            --nav-text: #ffffff;
+        }
+
+        .dark-mode {
+            --primary-color: #00cccc;
+            --secondary-color: #cc00cc;
+            --background-color: #1a1a1a;
+            --text-color: #f0f0f0;
+            --button-hover-color: #009999;
+            --assessment-bg: #2a2a2a;
+            --assessment-shadow: rgba(0, 255, 255, 0.1);
+            --nav-bg: #000000;
+            --nav-text: #00ffff;
         }
 
         body {
@@ -30,27 +44,18 @@
 
         h1, h2, h3, h4, h5, h6 {
             font-family: 'Lato', sans-serif;
-        }
-
-        .dark-mode {
-            --primary-color: #2980b9;
-            --secondary-color: #27ae60;
-            --background-color: #2c3e50;
-            --text-color: #ecf0f1;
-            --button-hover-color: #3498db;
-            --assessment-bg: #34495e;
-            --assessment-shadow: rgba(0, 0, 0, 0.3);
+            color: var(--primary-color);
         }
 
         header {
-            background-color: var(--primary-color);
-            color: #fff;
+            background-color: var(--nav-bg);
+            color: var(--nav-text);
             text-align: center;
             padding: 1rem;
         }
 
         nav {
-            background-color: var(--secondary-color);
+            background-color: var(--nav-bg);
             padding: 0.5rem;
         }
 
@@ -66,7 +71,7 @@
         }
 
         nav ul li a {
-            color: #fff;
+            color: var(--nav-text);
             text-decoration: none;
         }
 
@@ -82,11 +87,12 @@
             padding: 1rem;
             margin-bottom: 1rem;
             box-shadow: 0 2px 5px var(--assessment-shadow);
+            border: 1px solid var(--primary-color);
         }
 
         button {
             background-color: var(--primary-color);
-            color: #fff;
+            color: var(--nav-bg);
             border: none;
             padding: 0.5rem 1rem;
             cursor: pointer;
@@ -124,7 +130,7 @@
             border: none;
             font-size: 1.5rem;
             cursor: pointer;
-            color: var(--text-color);
+            color: var(--primary-color);
         }
 
         .hidden {
@@ -141,7 +147,7 @@
         #progressBar {
             width: 0;
             height: 20px;
-            background-color: var(--primary-color);
+            background-color: var(--secondary-color);
             border-radius: 5px;
             text-align: center;
             line-height: 20px;
@@ -183,8 +189,8 @@
         }
 
         footer {
-            background-color: var(--primary-color);
-            color: #fff;
+            background-color: var(--nav-bg);
+            color: var(--nav-text);
             padding: 20px 0;
             margin-top: 40px;
         }
@@ -215,7 +221,7 @@
         }
 
         .footer-section a {
-            color: #fff;
+            color: var(--nav-text);
             text-decoration: none;
         }
 
@@ -239,14 +245,14 @@
             background-color: var(--assessment-bg);
             margin: 15% auto;
             padding: 20px;
-            border: 1px solid #888;
+            border: 1px solid var(--primary-color);
             width: 80%;
             max-width: 600px;
             border-radius: 5px;
         }
 
         .close {
-            color: #aaa;
+            color: var(--primary-color);
             float: right;
             font-size: 28px;
             font-weight: bold;
@@ -255,7 +261,7 @@
 
         .close:hover,
         .close:focus {
-            color: #000;
+            color: var(--secondary-color);
             text-decoration: none;
             cursor: pointer;
         }
@@ -279,6 +285,7 @@
             <li><a href="#hexaco">HEXACO</a></li>
             <li><a href="#ocean">OCEAN</a></li>
             <li><a href="#statistics">Statistics</a></li>
+            <li><a href="#history">History & Background</a></li>
         </ul>
     </nav>
     <main>
@@ -324,6 +331,11 @@
                 <p>Perform statistical analyses on uploaded or supplied data.</p>
                 <button onclick="showStatisticsOptions()">Start Statistical Analysis</button>
             </div>
+            <div id="history" class="assessment">
+                <h2>History and Background of the Dark Triad</h2>
+                <p>Explore the historical development and key concepts of the Dark Triad in personality psychology.</p>
+                <button onclick="showHistoryAndBackground()">Learn More</button>
+            </div>
         </div>
         <!-- Progress Bar -->
         <div id="progressBarContainer" class="hidden">
@@ -350,6 +362,33 @@
             <button onclick="performAnalysis('descriptive')">Descriptive Statistics</button>
             <input type="file" id="dataUpload" accept=".csv,.json" class="hidden">
             <button onclick="document.getElementById('dataUpload').click()">Upload Data</button>
+        </div>
+        <!-- History and Background Content -->
+        <div id="historyContent" class="hidden">
+            <h2>The Dark Triad: Historical Background and Development</h2>
+            <p>The Dark Triad is a constellation of three conceptually distinct but empirically overlapping personality traits: Machiavellianism, Narcissism, and Psychopathy.</p>
+            
+            <h3>Machiavellianism</h3>
+            <p>Named after Niccolò Machiavelli, a 16th-century Italian diplomat. The concept was introduced to psychology by Richard Christie and Florence Geis in the 1970s.</p>
+            
+            <h3>Narcissism</h3>
+            <p>Derived from the Greek myth of Narcissus. It was introduced as a psychological concept by Havelock Ellis (1898) and developed by Sigmund Freud.</p>
+            
+            <h3>Psychopathy</h3>
+            <p>Term coined by German psychiatrist Julius Koch in the 1890s. Hervey Cleckley's "The Mask of Sanity" (1941) provided the first comprehensive description.</p>
+            
+            <h3>The Dark Triad Concept</h3>
+            <p>Introduced by Delroy L. Paulhus and Kevin M. Williams in 2002 to study these three traits together due to their conceptual distinctiveness but empirical overlap.</p>
+            
+            <h3>Key Developments</h3>
+            <ul>
+                <li>2002: Introduction of the Dark Triad concept</li>
+                <li>2010: Development of the Short Dark Triad (SD3)</li>
+                <li>2010: Introduction of the Dirty Dozen scale</li>
+                <li>2014: Expansion to the Dark Tetrad with the inclusion of everyday sadism</li>
+            </ul>
+            
+            <button onclick="hideHistoryAndBackground()">Back to Assessments</button>
         </div>
     </main>
 
