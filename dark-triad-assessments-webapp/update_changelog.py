@@ -2,6 +2,7 @@ import os
 import re
 import sqlite3
 from datetime import datetime
+from subprocess import check_output, CalledProcessError
 
 # Get the directory of the script
 script_dir = os.path.dirname(os.path.abspath(__file__))
@@ -25,15 +26,28 @@ def increment_version(version):
     return f"{major}.{minor}.{patch + 1}"
 
 def get_commit_messages():
-    # Get commit messages since the last tag
     try:
-        from subprocess import check_output
-        last_tag = check_output(['git', 'describe', '--tags', '--abbrev=0']).decode().strip()
-        commit_messages = check_output(['git', 'log', f'{last_tag}..HEAD', '--pretty=format:%s']).decode().split('\n')
-    except:
-        print("Error getting commit messages. Using placeholder.")
-        commit_messages = ["Placeholder commit message"]
-    return commit_messages
+        # Get the last version from the changelog
+        current_version = get_current_version()
+        print(f"Current version from changelog: {current_version}")
+
+        # Get all tags
+        all_tags = check_output(['git', 'tag']).decode().split()
+        print(f"All tags: {all_tags}")
+
+        if current_version in all_tags:
+            print(f"Found tag for version {current_version}")
+            last_version_hash = check_output(['git', 'rev-list', '-n', '1', current_version]).decode().strip()
+            commit_messages = check_output(['git', 'log', f'{last_version_hash}..HEAD', '--pretty=format:%s']).decode().split('\n')
+        else:
+            print(f"No tag found for version {current_version}. Getting all commit messages.")
+            commit_messages = check_output(['git', 'log', '--pretty=format:%s']).decode().split('\n')
+
+        print(f"Number of commit messages: {len(commit_messages)}")
+        return commit_messages
+    except CalledProcessError as e:
+        print(f"Error getting commit messages: {e}")
+        return ["Error retrieving commit messages"]
 
 def update_changelog(new_version, commit_messages):
     today = datetime.now().strftime("%Y-%m-%d")
@@ -57,8 +71,11 @@ def format_commit_messages(messages):
 
 def main():
     current_version = get_current_version()
+    print(f"Current version: {current_version}")
     new_version = increment_version(current_version)
+    print(f"New version: {new_version}")
     commit_messages = get_commit_messages()
+    print(f"Commit messages: {commit_messages[:5]}...")  # Print first 5 messages
     update_changelog(new_version, commit_messages)
     print(f"CHANGELOG.md updated with version {new_version}")
 
