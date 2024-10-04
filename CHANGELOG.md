@@ -41,6 +41,7 @@
 - Enhanced createChart function to support dynamic color changes and uploaded data visualization
 - Modified export function to include patient ID and timestamp
 - Updated UI to include a new Statistics section in the main menu
+- Updated Repository Wiki link in the footer to the correct GitHub wiki page
 
 ### Fixed
 

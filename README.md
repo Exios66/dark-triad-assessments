@@ -31,7 +31,7 @@ This web application provides various psychological assessments related to the D
   - Factor Analysis (PCA)
   - Descriptive Statistics
 - Display of formulas and logic used in statistical calculations
-- Footer with links to repository wiki and scientific articles
+- Footer with links to repository wiki (https://github.com/Exios66/dark-triad-assessments/wiki) and scientific articles
 - Modal window displaying relevant scientific articles for each assessment
 
 ## Recent Updates
@@ -51,6 +51,7 @@ This web application provides various psychological assessments related to the D
   - Factor Analysis
   - Descriptive Statistics
 - Enhanced data visualization for new statistical analyses
+- Updated Repository Wiki link in the footer to the correct GitHub wiki page
 
 ## Usage
 
@@ -92,6 +93,8 @@ To modify or extend this application:
 ## Contributing
 
 Contributions are welcome! Please feel free to submit a Pull Request.
+
+For more detailed information about the project and its components, please visit our [Wiki](https://github.com/Exios66/dark-triad-assessments/wiki).
 
 ## License
 
