@@ -6,6 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1"/>
     <meta name="description" content="Dark Triad Assessments Web Application"/>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Lato:wght@400;700&family=Roboto:wght@400;700&display=swap" rel="stylesheet">
     <style>
         :root {
             --primary-color: #3498db;
@@ -18,13 +19,17 @@
         }
 
         body {
-            font-family: Arial, sans-serif;
+            font-family: 'Roboto', sans-serif;
             line-height: 1.6;
             margin: 0;
             padding: 0;
             background-color: var(--background-color);
             color: var(--text-color);
             transition: background-color 0.3s, color 0.3s;
+        }
+
+        h1, h2, h3, h4, h5, h6 {
+            font-family: 'Lato', sans-serif;
         }
 
         .dark-mode {
@@ -195,6 +200,7 @@
             <li><a href="#mmpi">MMPI-style</a></li>
             <li><a href="#hexaco">HEXACO</a></li>
             <li><a href="#ocean">OCEAN</a></li>
+            <li><a href="#statistics">Statistics</a></li>
         </ul>
     </nav>
     <main>
@@ -235,6 +241,11 @@
                 <p>This assessment measures five personality traits: Openness, Conscientiousness, Extraversion, Agreeableness, and Neuroticism.</p>
                 <button onclick="startAssessment('ocean')">Start OCEAN Assessment</button>
             </div>
+            <div id="statistics" class="assessment">
+                <h2>Statistical Analysis</h2>
+                <p>Perform statistical analyses on uploaded or supplied data.</p>
+                <button onclick="showStatisticsOptions()">Start Statistical Analysis</button>
+            </div>
         </div>
         <!-- Progress Bar -->
         <div id="progressBarContainer" class="hidden">
@@ -246,6 +257,17 @@
         <div id="results" class="hidden"></div>
         <!-- Chart -->
         <canvas id="resultsChart" class="hidden"></canvas>
+        <!-- Statistics Options -->
+        <div id="statisticsOptions" class="hidden">
+            <h2>Choose Statistical Analysis</h2>
+            <button onclick="performAnalysis('cronbachAlpha')">Cronbach's Alpha</button>
+            <button onclick="performAnalysis('splitHalf')">Split-Half Reliability</button>
+            <button onclick="performAnalysis('anova')">ANOVA</button>
+            <button onclick="performAnalysis('interItem')">Inter-Item Validity</button>
+            <button onclick="performAnalysis('psychometric')">Psychometric Analysis</button>
+            <input type="file" id="dataUpload" accept=".csv,.json" style="display: none;">
+            <button onclick="document.getElementById('dataUpload').click()">Upload Data</button>
+        </div>
     </main>
 
     <script>
@@ -566,10 +588,11 @@
                 <h2>Your Results</h2>
                 ${traits.map((trait, index) => `
                     <p>${trait}: ${scores[index].toFixed(2)}% 
-                    <span class="trait-explanation" title="${getTraitExplanation(trait)}">ℹ️</span></p>
+                    <span class="trait-explanation" title="${getTraitExplanation(trait)}">ℹ</span></p>
                 `).join('')}
                 <button onclick="resetAssessment()">Take Another Assessment</button>
                 <button onclick="exportResults()">Export Results</button>
+                <button onclick="uploadStoredResults()" id="uploadButton" class="hidden">Upload Stored Results</button>
             `;
 
             createChart(traits, scores);
@@ -602,12 +625,16 @@
             const isDarkMode = document.body.classList.contains('dark-mode');
             const textColor = isDarkMode ? '#ecf0f1' : '#333';
 
+            if (window.resultsChart) {
+                window.resultsChart.destroy();
+            }
+
             window.resultsChart = new Chart(ctx, {
                 type: 'radar',
                 data: {
                     labels: traits,
                     datasets: [{
-                        label: 'Your Scores',
+                        label: 'Scores',
                         data: scores,
                         backgroundColor: 'rgba(255, 99, 132, 0.2)',
                         borderColor: 'rgb(255, 99, 132)',
@@ -631,14 +658,20 @@
                             suggestedMin: 0,
                             suggestedMax: 100,
                             pointLabels: {
-                                color: textColor
+                                color: textColor,
+                                font: {
+                                    family: 'Lato, sans-serif'
+                                }
                             }
                         }
                     },
                     plugins: {
                         legend: {
                             labels: {
-                                color: textColor
+                                color: textColor,
+                                font: {
+                                    family: 'Lato, sans-serif'
+                                }
                             }
                         }
                     }
@@ -650,23 +683,120 @@
             document.getElementById('results').classList.add('hidden');
             document.getElementById('resultsChart').classList.add('hidden');
             document.getElementById('assessments').classList.remove('hidden');
+            document.getElementById('uploadButton').classList.remove('hidden');
             currentAssessment = '';
             currentQuestionIndex = 0;
             answers = {};
         }
 
         function exportResults() {
+            const patientID = prompt("Enter the patient ID for storage:", "");
+            if (!patientID) {
+                alert("Patient ID is required for export.");
+                return;
+            }
+
             const exportFormat = prompt("Choose export format (txt or csv):", "txt");
             if (exportFormat === "txt" || exportFormat === "csv") {
                 const content = generateExportContent(exportFormat);
+                const timestamp = new Date().toISOString().replace(/[:.]/g, "-");
+                const fileName = `${patientID}_${timestamp}.${exportFormat}`;
+
+                // For browser download
                 const blob = new Blob([content], { type: `text/${exportFormat}` });
                 const a = document.createElement("a");
                 a.href = URL.createObjectURL(blob);
-                a.download = `dark_triad_results.${exportFormat}`;
+                a.download = fileName;
                 a.click();
+
+                // For local storage (this will only work in a full web application environment)
+                storeResultsLocally(fileName, content);
             } else {
                 alert("Invalid format. Please choose 'txt' or 'csv'.");
             }
+        }
+
+        function storeResultsLocally(fileName, content) {
+            // This is a placeholder function. In a real web application, you would implement
+            // server-side storage or use a database. For now, we'll just simulate storage.
+            console.log(`Storing file: ${fileName}`);
+            console.log(`Content: ${content}`);
+            alert(`File ${fileName} has been stored locally. (This is a simulation)`);
+
+            // In a real application, you might do something like this:
+            // fetch('/store-results', {
+            //     method: 'POST',
+            //     headers: {
+            //         'Content-Type': 'application/json',
+            //     },
+            //     body: JSON.stringify({ fileName, content }),
+            // })
+            // .then(response => response.json())
+            // .then(data => console.log('Success:', data))
+            // .catch((error) => console.error('Error:', error));
+        }
+
+        function uploadStoredResults() {
+            const fileInput = document.createElement('input');
+            fileInput.type = 'file';
+            fileInput.accept = '.txt,.csv';
+            fileInput.onchange = (event) => {
+                const file = event.target.files[0];
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    const content = e.target.result;
+                    const uploadedData = parseUploadedContent(content, file.name.split('.').pop());
+                    visualizeUploadedData(uploadedData);
+                };
+                reader.readAsText(file);
+            };
+            fileInput.click();
+        }
+
+        function parseUploadedContent(content, fileType) {
+            if (fileType === 'csv') {
+                const lines = content.split('\n');
+                const data = {};
+                lines.slice(1).forEach(line => {
+                    const [trait, score] = line.split(',');
+                    if (trait && score) {
+                        data[trait.trim()] = parseFloat(score);
+                    }
+                });
+                return data;
+            } else {
+                // Assume TXT format
+                const lines = content.split('\n');
+                const data = {};
+                lines.forEach(line => {
+                    const [trait, score] = line.split(':');
+                    if (trait && score) {
+                        data[trait.trim()] = parseFloat(score);
+                    }
+                });
+                return data;
+            }
+        }
+
+        function visualizeUploadedData(data) {
+            const traits = Object.keys(data);
+            const scores = traits.map(trait => data[trait]);
+
+            document.getElementById('assessments').classList.add('hidden');
+            document.getElementById('results').classList.remove('hidden');
+            document.getElementById('resultsChart').classList.remove('hidden');
+
+            const resultsContainer = document.getElementById('results');
+            resultsContainer.innerHTML = `
+                <h2>Uploaded Results</h2>
+                ${traits.map((trait, index) => `
+                    <p>${trait}: ${scores[index].toFixed(2)}% 
+                    <span class="trait-explanation" title="${getTraitExplanation(trait)}">ℹ</span></p>
+                `).join('')}
+                <button onclick="resetAssessment()">Back to Assessments</button>
+            `;
+
+            createChart(traits, scores);
         }
 
         function generateExportContent(format) {
@@ -691,6 +821,185 @@
                 return content;
             }
         }
+
+        function showStatisticsOptions() {
+            document.getElementById('assessments').classList.add('hidden');
+            document.getElementById('statisticsOptions').classList.remove('hidden');
+        }
+
+        function performAnalysis(analysisType) {
+            const fileInput = document.getElementById('dataUpload');
+            if (fileInput.files.length === 0) {
+                alert('Please upload a data file first.');
+                return;
+            }
+
+            const file = fileInput.files[0];
+            const reader = new FileReader();
+
+            reader.onload = function(e) {
+                const data = parseData(e.target.result, file.name);
+                switch (analysisType) {
+                    case 'cronbachAlpha':
+                        calculateCronbachAlpha(data);
+                        break;
+                    case 'splitHalf':
+                        calculateSplitHalfReliability(data);
+                        break;
+                    case 'anova':
+                        performANOVA(data);
+                        break;
+                    case 'interItem':
+                        calculateInterItemValidity(data);
+                        break;
+                    case 'psychometric':
+                        performPsychometricAnalysis(data);
+                        break;
+                }
+            };
+
+            reader.readAsText(file);
+        }
+
+        function parseData(content, fileName) {
+            if (fileName.endsWith('.csv')) {
+                return parseCSV(content);
+            } else if (fileName.endsWith('.json')) {
+                return JSON.parse(content);
+            } else {
+                throw new Error('Unsupported file format');
+            }
+        }
+
+        function parseCSV(csv) {
+            const lines = csv.split('\n');
+            const headers = lines[0].split(',');
+            const data = [];
+
+            for (let i = 1; i < lines.length; i++) {
+                const values = lines[i].split(',');
+                if (values.length === headers.length) {
+                    const row = {};
+                    for (let j = 0; j < headers.length; j++) {
+                        row[headers[j]] = parseFloat(values[j]);
+                    }
+                    data.push(row);
+                }
+            }
+
+            return data;
+        }
+
+        function calculateCronbachAlpha(data) {
+            const items = Object.keys(data[0]);
+            const n = items.length;
+            const variances = items.map(item => math.variance(data.map(d => d[item])));
+            const totalVariance = math.variance(data.map(d => Object.values(d).reduce((a, b) => a + b, 0)));
+            const alpha = (n / (n - 1)) * (1 - (math.sum(variances) / totalVariance));
+            
+            displayResults('Cronbach\'s Alpha', `α = ${alpha.toFixed(3)}`);
+        }
+
+        function calculateSplitHalfReliability(data) {
+            const items = Object.keys(data[0]);
+            const halfLength = Math.floor(items.length / 2);
+            const firstHalf = items.slice(0, halfLength);
+            const secondHalf = items.slice(halfLength);
+
+            const firstHalfScores = data.map(d => firstHalf.reduce((sum, item) => sum + d[item], 0));
+            const secondHalfScores = data.map(d => secondHalf.reduce((sum, item) => sum + d[item], 0));
+
+            const correlation = math.correlation(firstHalfScores, secondHalfScores);
+            const reliability = (2 * correlation) / (1 + correlation);
+
+            displayResults('Split-Half Reliability', `Reliability = ${reliability.toFixed(3)}`);
+        }
+
+        function performANOVA(data) {
+            // This is a simplified one-way ANOVA
+            const groups = {};
+            Object.keys(data[0]).forEach(key => {
+                groups[key] = data.map(d => d[key]);
+            });
+
+            const grandMean = math.mean(Object.values(groups).flat());
+            const totalSS = math.sum(Object.values(groups).flat().map(x => Math.pow(x - grandMean, 2)));
+            const withinSS = math.sum(Object.values(groups).map(group => 
+                math.sum(group.map(x => Math.pow(x - math.mean(group), 2)))
+            ));
+            const betweenSS = totalSS - withinSS;
+
+            const dfBetween = Object.keys(groups).length - 1;
+            const dfWithin = Object.values(groups).flat().length - Object.keys(groups).length;
+            const dfTotal = dfBetween + dfWithin;
+
+            const msBetween = betweenSS / dfBetween;
+            const msWithin = withinSS / dfWithin;
+            const fRatio = msBetween / msWithin;
+
+            displayResults('ANOVA', `F(${dfBetween}, ${dfWithin}) = ${fRatio.toFixed(3)}`);
+        }
+
+        function calculateInterItemValidity(data) {
+            const items = Object.keys(data[0]);
+            const correlationMatrix = [];
+
+            for (let i = 0; i < items.length; i++) {
+                correlationMatrix[i] = [];
+                for (let j = 0; j < items.length; j++) {
+                    const correlation = math.correlation(
+                        data.map(d => d[items[i]]),
+                        data.map(d => d[items[j]])
+                    );
+                    correlationMatrix[i][j] = correlation;
+                }
+            }
+
+            const averageCorrelation = math.mean(correlationMatrix.flat());
+            displayResults('Inter-Item Validity', `Average correlation = ${averageCorrelation.toFixed(3)}`);
+        }
+
+        function performPsychometricAnalysis(data) {
+            const items = Object.keys(data[0]);
+            const n = data.length;
+
+            const itemMeans = items.map(item => math.mean(data.map(d => d[item])));
+            const itemStdDevs = items.map(item => math.std(data.map(d => d[item])));
+            const totalScores = data.map(d => Object.values(d).reduce((a, b) => a + b, 0));
+            const totalMean = math.mean(totalScores);
+            const totalStdDev = math.std(totalScores);
+
+            const itemTotalCorrelations = items.map(item => 
+                math.correlation(data.map(d => d[item]), totalScores)
+            );
+
+            let results = 'Psychometric Analysis Results:\n\n';
+            results += `Total Score: Mean = ${totalMean.toFixed(2)}, SD = ${totalStdDev.toFixed(2)}\n\n`;
+            results += 'Item Statistics:\n';
+            items.forEach((item, index) => {
+                results += `${item}: Mean = ${itemMeans[index].toFixed(2)}, SD = ${itemStdDevs[index].toFixed(2)}, `;
+                results += `Item-Total Correlation = ${itemTotalCorrelations[index].toFixed(3)}\n`;
+            });
+
+            displayResults('Psychometric Analysis', results);
+        }
+
+        function displayResults(title, results) {
+            const resultsContainer = document.getElementById('results');
+            resultsContainer.innerHTML = `
+                <h2>${title}</h2>
+                <pre>${results}</pre>
+                <button onclick="resetStatistics()">Back to Statistics Options</button>
+            `;
+            document.getElementById('statisticsOptions').classList.add('hidden');
+            resultsContainer.classList.remove('hidden');
+        }
+
+        function resetStatistics() {
+            document.getElementById('results').classList.add('hidden');
+            document.getElementById('statisticsOptions').classList.remove('hidden');
+        }
     </script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjs/9.4.4/math.js"></script>
 </body>
 </html>

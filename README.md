@@ -1,6 +1,6 @@
 # Dark Triad Assessments Web Application
 
-This web application provides various psychological assessments related to the Dark Triad personality traits and other personality measures.
+This web application provides various psychological assessments related to the Dark Triad personality traits and other personality measures, as well as statistical analysis tools.
 
 ## Features
 
@@ -15,24 +15,35 @@ This web application provides various psychological assessments related to the D
 - Dark mode support with full UI inversion
 - Interactive radar chart for result visualization
 - Progress bar for assessment completion
-- Ability to export results in TXT or CSV format
+- Ability to export results in TXT or CSV format with patient ID and timestamp
 - Auto-advance feature for questions after 4 seconds of inactivity
+- Functionality to upload and visualize stored results
+- Improved typography using Lato and Roboto fonts
+- Statistical analysis tools:
+  - Cronbach's Alpha
+  - Split-Half Reliability
+  - ANOVA
+  - Inter-Item Validity
+  - Psychometric Analysis
 
 ## Recent Updates
 
-- Added complete MACH-IV assessment with all validated questions
-- Improved dark mode functionality for better UI inversion
-- Enhanced chart colors to match dark mode theme
-- Refactored code for better performance and maintainability
-- Implemented auto-advance feature for questions
+- Added statistical analysis functionality
+- Implemented data file upload for analysis
+- Integrated Math.js library for advanced calculations
 
 ## Usage
 
 1. Open the `index.html` file in a web browser.
-2. Choose an assessment from the available options.
-3. Answer all questions honestly. If you don't respond within 4 seconds, the assessment will automatically move to the next question.
-4. View your results and the radar chart visualization.
-5. Optionally export your results in TXT or CSV format.
+2. Choose an assessment from the available options or select "Statistics" for data analysis.
+3. For assessments:
+   - Answer all questions honestly. If you don't respond within 4 seconds, the assessment will automatically move to the next question.
+   - View your results and the radar chart visualization.
+   - Optionally export your results in TXT or CSV format.
+4. For statistical analysis:
+   - Upload a CSV or JSON file containing your data.
+   - Select the type of analysis you want to perform.
+   - View the results of the analysis.
 
 ## Development
 
