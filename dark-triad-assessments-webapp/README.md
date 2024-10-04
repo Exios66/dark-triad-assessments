@@ -1,13 +1,35 @@
 # Dark Triad Assessments Web Application
 
-This web application provides various assessments related to the Dark Triad personality traits: Machiavellianism, Narcissism, and Psychopathy. It includes multiple assessment types and visualizations of results.
+This web application provides various assessments related to the Dark Triad and Dark Tetrad personality traits: Machiavellianism, Narcissism, Psychopathy, and Sadism. It includes multiple assessment types and visualizations of results.
 
 ## Features
 
-- Multiple assessment types (SDT3, SDT4, MACH-IV, Dirty Dozens)
+- Multiple assessment types:
+  - Short Dark Triad (SD3)
+  - Short Dark Tetrad (SD4)
+  - MACH-IV
+  - Dirty Dozen
 - Interactive user interface
 - Visualization of results
 - Responsive design
+
+## Assessments
+
+### Short Dark Triad (SD3)
+
+The SD3 is a brief measure of the Dark Triad of personality, measuring Machiavellianism, Narcissism, and Psychopathy. It consists of 27 items, with 9 items per trait.
+
+### Short Dark Tetrad (SD4)
+
+The SD4 extends the Dark Triad by including a fourth trait, Sadism. It measures Machiavellianism, Narcissism, Psychopathy, and Sadism. The SD4 typically consists of 28 items, with 7 items per trait.
+
+### MACH-IV
+
+The MACH-IV is a specific measure of Machiavellianism. It consists of 20 items designed to assess an individual's willingness to manipulate others for personal gain.
+
+### Dirty Dozen
+
+The Dirty Dozen is a concise measure of the Dark Triad traits. It consists of 12 items, with 4 items each measuring Machiavellianism, Narcissism, and Psychopathy.
 
 ## Getting Started
 
@@ -29,7 +51,6 @@ This web application provides various assessments related to the Dark Triad pers
    ```
 
 3. Install dependencies:
-
    ```
    npm install
    ```
@@ -45,7 +66,7 @@ This web application provides various assessments related to the Dark Triad pers
 
 To run the test suite:
 
-```
+```shell
 npm test
 ```
 
@@ -57,12 +78,15 @@ npm test
 
 ## Project Structure
 
+
 ```
 dark-triad-assessments-webapp/
-├── public/
-├── src/
 │   ├── components/
 │   │   ├── Assessment/
+│   │   │   ├── SDT3/
+│   │   │   ├── SDT4/
+│   │   │   ├── MACHIV/
+│   │   │   └── DirtyDozens/
 │   │   ├── common/
 │   │   ├── Header/
 │   │   ├── Footer/
@@ -90,7 +114,7 @@ The changelog is automatically updated after each commit using a Git post-commit
 
 If you need to manually update the changelog, you can run the following command:
 
-```
+```shell
 python update_changelog.py
 ```
 
