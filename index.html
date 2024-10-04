@@ -181,6 +181,84 @@
         .assessment, #results, #assessmentQuestions {
             animation: fadeIn 0.5s ease-in-out;
         }
+
+        footer {
+            background-color: var(--primary-color);
+            color: #fff;
+            padding: 20px 0;
+            margin-top: 40px;
+        }
+
+        .footer-content {
+            display: flex;
+            justify-content: space-around;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .footer-section {
+            flex: 1;
+            margin: 0 20px;
+        }
+
+        .footer-section h3 {
+            margin-bottom: 10px;
+        }
+
+        .footer-section ul {
+            list-style-type: none;
+            padding: 0;
+        }
+
+        .footer-section ul li {
+            margin-bottom: 5px;
+        }
+
+        .footer-section a {
+            color: #fff;
+            text-decoration: none;
+        }
+
+        .footer-section a:hover {
+            text-decoration: underline;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0,0,0,0.4);
+        }
+
+        .modal-content {
+            background-color: var(--assessment-bg);
+            margin: 15% auto;
+            padding: 20px;
+            border: 1px solid #888;
+            width: 80%;
+            max-width: 600px;
+            border-radius: 5px;
+        }
+
+        .close {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .close:hover,
+        .close:focus {
+            color: #000;
+            text-decoration: none;
+            cursor: pointer;
+        }
     </style>
 </head>
 <body>
@@ -265,7 +343,7 @@
             <button onclick="performAnalysis('anova')">ANOVA</button>
             <button onclick="performAnalysis('interItem')">Inter-Item Validity</button>
             <button onclick="performAnalysis('psychometric')">Psychometric Analysis</button>
-            <input type="file" id="dataUpload" accept=".csv,.json" style="display: none;">
+            <input type="file" id="dataUpload" accept=".csv,.json" class="hidden">
             <button onclick="document.getElementById('dataUpload').click()">Upload Data</button>
         </div>
     </main>
@@ -359,8 +437,7 @@
                 { question: "I'm likely to become a future star in some area.", trait: "Narcissism" },
                 { question: "People who mess with me always regret it.", trait: "Psychopathy" },
                 { question: "You should take advantage of other people before they do it to you.", trait: "Psychopathy" },
-                { question: "People often say I'm out of control.", trait: "Psychopathy" },
-                { question: "I sometimes get into trouble for breaking rules.", trait: "Psychopathy" },
+                { question: "People often tell me I'm out of control.", trait: "Psychopathy" },
                 { question: "I tend to fight against authorities and their rules.", trait: "Psychopathy" },
                 { question: "I've been in more fights than most people of my age and gender.", trait: "Psychopathy" },
                 { question: "I tend to dive in, then ask questions later.", trait: "Psychopathy" },
@@ -897,7 +974,18 @@
             const totalVariance = math.variance(data.map(d => Object.values(d).reduce((a, b) => a + b, 0)));
             const alpha = (n / (n - 1)) * (1 - (math.sum(variances) / totalVariance));
             
-            displayResults('Cronbach\'s Alpha', `α = ${alpha.toFixed(3)}`);
+            const formula = "\\alpha = \\frac{n}{n-1}\\left(1-\\frac{\\sum_{i=1}^n \\sigma_{Y_i}^2}{\\sigma_X^2}\\right)";
+            const logic = `
+            1. Calculate the variance of each item
+            2. Calculate the variance of the total scores
+            3. Apply the formula:
+               - n: number of items (${n})
+               - ΣσYi²: sum of item variances (${math.sum(variances).toFixed(3)})
+               - σX²: variance of total scores (${totalVariance.toFixed(3)})
+            4. Result: α = ${alpha.toFixed(3)}
+            `;
+
+            displayResults('Cronbach\'s Alpha', `α = ${alpha.toFixed(3)}`, formula, logic, data);
         }
 
         function calculateSplitHalfReliability(data) {
@@ -912,11 +1000,19 @@
             const correlation = math.correlation(firstHalfScores, secondHalfScores);
             const reliability = (2 * correlation) / (1 + correlation);
 
-            displayResults('Split-Half Reliability', `Reliability = ${reliability.toFixed(3)}`);
+            const formula = "r_{SB} = \\frac{2r}{1+r}";
+            const logic = `
+            1. Split the items into two halves
+            2. Calculate the total score for each half
+            3. Calculate the correlation between the two halves (r = ${correlation.toFixed(3)})
+            4. Apply the Spearman-Brown prophecy formula
+            5. Result: reliability = ${reliability.toFixed(3)}
+            `;
+
+            displayResults('Split-Half Reliability', `Reliability = ${reliability.toFixed(3)}`, formula, logic, data);
         }
 
         function performANOVA(data) {
-            // This is a simplified one-way ANOVA
             const groups = {};
             Object.keys(data[0]).forEach(key => {
                 groups[key] = data.map(d => d[key]);
@@ -937,7 +1033,19 @@
             const msWithin = withinSS / dfWithin;
             const fRatio = msBetween / msWithin;
 
-            displayResults('ANOVA', `F(${dfBetween}, ${dfWithin}) = ${fRatio.toFixed(3)}`);
+            const formula = "F = \\frac{MS_{between}}{MS_{within}}";
+            const logic = `
+            1. Calculate the grand mean
+            2. Calculate the total sum of squares (SST)
+            3. Calculate the within-group sum of squares (SSW)
+            4. Calculate the between-group sum of squares (SSB = SST - SSW)
+            5. Calculate degrees of freedom (df) for between and within groups
+            6. Calculate mean squares (MS) for between and within groups
+            7. Calculate F-ratio: F = MSbetween / MSwithin
+            8. Result: F(${dfBetween}, ${dfWithin}) = ${fRatio.toFixed(3)}
+            `;
+
+            displayResults('ANOVA', `F(${dfBetween}, ${dfWithin}) = ${fRatio.toFixed(3)}`, formula, logic, groups);
         }
 
         function calculateInterItemValidity(data) {
@@ -956,7 +1064,16 @@
             }
 
             const averageCorrelation = math.mean(correlationMatrix.flat());
-            displayResults('Inter-Item Validity', `Average correlation = ${averageCorrelation.toFixed(3)}`);
+
+            const formula = "\\bar{r} = \\frac{\\sum_{i=1}^n \\sum_{j=1}^n r_{ij}}{n(n-1)}";
+            const logic = `
+            1. Calculate the correlation between each pair of items
+            2. Create a correlation matrix
+            3. Calculate the average of all correlations (excluding self-correlations)
+            4. Result: Average correlation = ${averageCorrelation.toFixed(3)}
+            `;
+
+            displayResults('Inter-Item Validity', `Average correlation = ${averageCorrelation.toFixed(3)}`, formula, logic, data);
         }
 
         function performPsychometricAnalysis(data) {
@@ -981,25 +1098,193 @@
                 results += `Item-Total Correlation = ${itemTotalCorrelations[index].toFixed(3)}\n`;
             });
 
-            displayResults('Psychometric Analysis', results);
+            const formula = "r_{it} = \\frac{\\sum_{i=1}^n (X_i - \\bar{X})(Y_i - \\bar{Y})}{\\sqrt{\\sum_{i=1}^n (X_i - \\bar{X})^2 \\sum_{i=1}^n (Y_i - \\bar{Y})^2}}";
+            const logic = `
+            1. Calculate mean and standard deviation for each item
+            2. Calculate total score for each participant
+            3. Calculate mean and standard deviation of total scores
+            4. Calculate item-total correlation for each item
+            5. Display results for each item and the total score
+            `;
+
+            displayResults('Psychometric Analysis', results, formula, logic, data);
         }
 
-        function displayResults(title, results) {
+        function displayResults(title, results, formula, logic, data) {
             const resultsContainer = document.getElementById('results');
             resultsContainer.innerHTML = `
                 <h2>${title}</h2>
+                <h3>Results:</h3>
                 <pre>${results}</pre>
+                <h3>Formula:</h3>
+                <div id="formula">${formula}</div>
+                <h3>Logic:</h3>
+                <pre>${logic}</pre>
+                <h3>Data Visualization:</h3>
+                <canvas id="dataVisualization"></canvas>
                 <button onclick="resetStatistics()">Back to Statistics Options</button>
             `;
             document.getElementById('statisticsOptions').classList.add('hidden');
             resultsContainer.classList.remove('hidden');
+
+            // Render LaTeX formula
+            MathJax.Hub.Queue(["Typeset", MathJax.Hub, "formula"]);
+
+            // Create data visualization
+            createDataVisualization(data, title);
+        }
+
+        function createDataVisualization(data, title) {
+            const ctx = document.getElementById('dataVisualization').getContext('2d');
+            let chartType, chartData, options;
+
+            switch (title) {
+                case "Cronbach's Alpha":
+                case "Split-Half Reliability":
+                    chartType = 'bar';
+                    chartData = {
+                        labels: Object.keys(data[0]),
+                        datasets: [{
+                            label: 'Item Scores',
+                            data: Object.values(data[0]),
+                            backgroundColor: 'rgba(75, 192, 192, 0.6)'
+                        }]
+                    };
+                    options = {
+                        scales: {
+                            y: {
+                                beginAtZero: true
+                            }
+                        }
+                    };
+                    break;
+                case "ANOVA":
+                    chartType = 'boxplot';
+                    chartData = {
+                        labels: Object.keys(data),
+                        datasets: [{
+                            label: 'Group Data',
+                            data: Object.values(data).map(group => {
+                                return {
+                                    min: Math.min(...group),
+                                    q1: math.quantileSeq(group, 0.25),
+                                    median: math.median(group),
+                                    q3: math.quantileSeq(group, 0.75),
+                                    max: Math.max(...group),
+                                    outliers: []
+                                };
+                            })
+                        }]
+                    };
+                    break;
+                case "Inter-Item Validity":
+                case "Psychometric Analysis":
+                    chartType = 'scatter';
+                    const items = Object.keys(data[0]);
+                    chartData = {
+                        datasets: items.map((item, index) => ({
+                            label: item,
+                            data: data.map(d => ({ x: d[items[0]], y: d[item] })),
+                            backgroundColor: `hsl(${(index * 360) / items.length}, 100%, 50%)`
+                        }))
+                    };
+                    options = {
+                        scales: {
+                            x: {
+                                title: {
+                                    display: true,
+                                    text: items[0]
+                                }
+                            },
+                            y: {
+                                title: {
+                                    display: true,
+                                    text: 'Item Scores'
+                                }
+                            }
+                        }
+                    };
+                    break;
+            }
+
+            new Chart(ctx, {
+                type: chartType,
+                data: chartData,
+                options: options
+            });
         }
 
         function resetStatistics() {
             document.getElementById('results').classList.add('hidden');
             document.getElementById('statisticsOptions').classList.remove('hidden');
         }
+
+        function showScientificArticles() {
+            const modal = document.getElementById('articlesModal');
+            const articlesList = document.getElementById('articlesList');
+            articlesList.innerHTML = ''; // Clear existing content
+
+            const articles = [
+                { title: "The Dark Triad of personality: A 10 year review", authors: "Furnham, A., Richards, S. C., & Paulhus, D. L.", year: 2013, journal: "Social and Personality Psychology Compass", doi: "10.1111/spc3.12018" },
+                { title: "The Short Dark Triad (SD3): A Brief Measure of Dark Personality Traits", authors: "Jones, D. N., & Paulhus, D. L.", year: 2014, journal: "Assessment", doi: "10.1177/1073191113514105" },
+                { title: "The Dark Tetrad: Distinguishing the Dark Triad from Sadism", authors: "Chabrol, H., Van Leeuwen, N., Rodgers, R., & Séjourné, N.", year: 2009, journal: "Personality and Individual Differences", doi: "10.1016/j.paid.2009.06.020" },
+                { title: "The HEXACO model of personality structure and the importance of the H factor", authors: "Lee, K., & Ashton, M. C.", year: 2004, journal: "Social and Personality Psychology Compass", doi: "10.1111/j.1751-9004.2007.00054.x" },
+                { title: "The Big Five Trait taxonomy: History, measurement, and theoretical perspectives", authors: "John, O. P., & Srivastava, S.", year: 1999, journal: "Handbook of personality: Theory and research", url: "https://pages.uoregon.edu/sanjay/pubs/bigfive.pdf" }
+            ];
+
+            articles.forEach(article => {
+                const li = document.createElement('li');
+                li.innerHTML = `<strong>${article.title}</strong><br>
+                                ${article.authors} (${article.year})<br>
+                                ${article.journal}<br>
+                                ${article.doi ? `DOI: <a href="https://doi.org/${article.doi}" target="_blank">${article.doi}</a>` : 
+                                  article.url ? `URL: <a href="${article.url}" target="_blank">${article.url}</a>` : ''}`;
+                articlesList.appendChild(li);
+            });
+
+            modal.style.display = 'block';
+        }
+
+        function closeModal() {
+            const modal = document.getElementById('articlesModal');
+            modal.style.display = 'none';
+        }
+
+        // Close modal when clicking outside of it
+        window.onclick = function(event) {
+            const modal = document.getElementById('articlesModal');
+            if (event.target == modal) {
+                modal.style.display = 'none';
+            }
+        }
     </script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjs/9.4.4/math.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/MathJax.js?config=TeX-MML-AM_CHTML"></script>
+
+    <!-- Add this just before the closing </body> tag -->
+    <footer>
+        <div class="footer-content">
+            <div class="footer-section">
+                <h3>Resources</h3>
+                <ul>
+                    <li><a href="https://github.com/yourusername/your-repo-name/wiki" target="_blank" rel="noopener">Repository Wiki</a></li>
+                    <li><a href="#" onclick="showScientificArticles()">Scientific Articles</a></li>
+                </ul>
+            </div>
+            <div class="footer-section">
+                <h3>About</h3>
+                <p>This application provides psychological assessments and statistical analysis tools for research purposes.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Add this modal for scientific articles -->
+    <div id="articlesModal" class="modal hidden">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal()">&times;</span>
+            <h2>Scientific Articles</h2>
+            <ul id="articlesList"></ul>
+        </div>
+    </div>
 </body>
 </html>

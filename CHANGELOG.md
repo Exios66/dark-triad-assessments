@@ -20,6 +20,13 @@
   - Psychometric Analysis
 - Ability to upload data files for statistical analysis
 - Math.js library for advanced mathematical calculations
+- Footer section with links to repository wiki and scientific articles
+- Modal window displaying relevant scientific articles
+- Improved styling for footer and modal
+- Data visualization for statistical analyses
+- Display of formulas and logic used in calculations
+- Integration of MathJax for rendering LaTeX formulas
+- Enhanced result display for all statistical analyses
 
 ### Changed
 

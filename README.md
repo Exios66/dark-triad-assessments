@@ -19,18 +19,26 @@ This web application provides various psychological assessments related to the D
 - Auto-advance feature for questions after 4 seconds of inactivity
 - Functionality to upload and visualize stored results
 - Improved typography using Lato and Roboto fonts
-- Statistical analysis tools:
+- Statistical analysis tools with data visualization:
   - Cronbach's Alpha
   - Split-Half Reliability
   - ANOVA
   - Inter-Item Validity
   - Psychometric Analysis
+- Display of formulas and logic used in statistical calculations
+- Footer with links to repository wiki and scientific articles
+- Modal window displaying relevant scientific articles for each assessment
 
 ## Recent Updates
 
 - Added statistical analysis functionality
 - Implemented data file upload for analysis
 - Integrated Math.js library for advanced calculations
+- Added footer with links to additional resources
+- Implemented modal window for displaying scientific articles
+- Added data visualization for statistical analyses
+- Implemented display of formulas and logic used in calculations
+- Integrated MathJax for rendering LaTeX formulas
 
 ## Usage
 
@@ -43,7 +51,11 @@ This web application provides various psychological assessments related to the D
 4. For statistical analysis:
    - Upload a CSV or JSON file containing your data.
    - Select the type of analysis you want to perform.
-   - View the results of the analysis.
+   - View the results of the analysis, including:
+     - Numerical results
+     - Data visualization
+     - Formula used in the calculation
+     - Step-by-step logic of the analysis
 
 ## Development
 
