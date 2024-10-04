@@ -1,3 +1,8 @@
+## [0.0.1] - 2024-10-04
+
+### Added
+- Placeholder commit message
+
 # Changelog
 
 All notable changes to this project will be documented in this file.

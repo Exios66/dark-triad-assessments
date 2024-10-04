@@ -1,76 +1,65 @@
-import subprocess
+import os
 import re
 from datetime import datetime
 
-def get_latest_commit_message():
-    try:
-        commit_message = subprocess.check_output(['git', 'log', '-1', '--pretty=%B']).decode('utf-8').strip()
-        return commit_message
-    except subprocess.CalledProcessError:
-        return None
+# Get the directory of the script
+script_dir = os.path.dirname(os.path.abspath(__file__))
+# Set the path to CHANGELOG.md relative to the script location
+changelog_path = os.path.join(script_dir, 'CHANGELOG.md')
 
 def get_current_version():
-    with open('CHANGELOG.md', 'r') as f:
-        content = f.read()
-    match = re.search(r'\[(\d+\.\d+\.\d+)\]', content)
-    if match:
-        return match.group(1)
-    return '0.0.0'
+    try:
+        with open(changelog_path, 'r') as f:
+            content = f.read()
+            match = re.search(r'## \[(\d+\.\d+\.\d+)\]', content)
+            if match:
+                return match.group(1)
+    except FileNotFoundError:
+        print(f"CHANGELOG.md not found at {changelog_path}. Creating a new one.")
+        return "0.0.0"
+    return "0.0.0"
 
-def increment_version(version, commit_message):
+def increment_version(version):
     major, minor, patch = map(int, version.split('.'))
-    if 'BREAKING CHANGE' in commit_message:
-        return f'{major + 1}.0.0'
-    elif commit_message.startswith('feat'):
-        return f'{major}.{minor + 1}.0'
-    else:
-        return f'{major}.{minor}.{patch + 1}'
+    return f"{major}.{minor}.{patch + 1}"
 
-def update_changelog(new_version, commit_message):
-    with open('CHANGELOG.md', 'r') as f:
-        lines = f.readlines()
+def get_commit_messages():
+    # Get commit messages since the last tag
+    try:
+        from subprocess import check_output
+        last_tag = check_output(['git', 'describe', '--tags', '--abbrev=0']).decode().strip()
+        commit_messages = check_output(['git', 'log', f'{last_tag}..HEAD', '--pretty=format:%s']).decode().split('\n')
+    except:
+        print("Error getting commit messages. Using placeholder.")
+        commit_messages = ["Placeholder commit message"]
+    return commit_messages
 
-    unreleased_index = next(i for i, line in enumerate(lines) if line.strip() == '## [Unreleased]')
-    
-    # Determine the type of change
-    if commit_message.startswith('feat'):
-        change_type = 'Added'
-    elif commit_message.startswith('fix'):
-        change_type = 'Fixed'
-    elif commit_message.startswith('docs'):
-        change_type = 'Documentation'
-    elif commit_message.startswith('style'):
-        change_type = 'Changed'
-    elif commit_message.startswith('refactor'):
-        change_type = 'Changed'
-    elif commit_message.startswith('perf'):
-        change_type = 'Changed'
-    elif commit_message.startswith('test'):
-        change_type = 'Changed'
-    else:
-        change_type = 'Changed'
+def update_changelog(new_version, commit_messages):
+    today = datetime.now().strftime("%Y-%m-%d")
+    new_entry = f"""## [{new_version}] - {today}
 
-    # Insert the new version and commit message
-    new_lines = [
-        f'\n## [{new_version}] - {datetime.now().strftime("%Y-%m-%d")}\n',
-        f'\n### {change_type}\n',
-        f'- {commit_message}\n'
-    ]
-    lines[unreleased_index + 1:unreleased_index + 1] = new_lines
+### Added
+{format_commit_messages(commit_messages)}
 
-    with open('CHANGELOG.md', 'w') as f:
-        f.writelines(lines)
+"""
+    try:
+        with open(changelog_path, 'r+') as f:
+            content = f.read()
+            f.seek(0, 0)
+            f.write(new_entry + content)
+    except FileNotFoundError:
+        with open(changelog_path, 'w') as f:
+            f.write(new_entry)
+
+def format_commit_messages(messages):
+    return "\n".join(f"- {msg}" for msg in messages if msg)
 
 def main():
-    commit_message = get_latest_commit_message()
-    if not commit_message:
-        print("Failed to get the latest commit message.")
-        return
-
     current_version = get_current_version()
-    new_version = increment_version(current_version, commit_message)
-    update_changelog(new_version, commit_message)
+    new_version = increment_version(current_version)
+    commit_messages = get_commit_messages()
+    update_changelog(new_version, commit_messages)
     print(f"CHANGELOG.md updated with version {new_version}")
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()
