@@ -25,6 +25,11 @@ This web application provides various psychological assessments related to the D
   - ANOVA
   - Inter-Item Validity
   - Psychometric Analysis
+  - IRT Analysis (2PL model)
+  - Regression Analysis
+  - Correlation Analysis
+  - Factor Analysis (PCA)
+  - Descriptive Statistics
 - Display of formulas and logic used in statistical calculations
 - Footer with links to repository wiki and scientific articles
 - Modal window displaying relevant scientific articles for each assessment
@@ -39,6 +44,13 @@ This web application provides various psychological assessments related to the D
 - Added data visualization for statistical analyses
 - Implemented display of formulas and logic used in calculations
 - Integrated MathJax for rendering LaTeX formulas
+- Added additional statistical analysis functions:
+  - IRT Analysis
+  - Regression Analysis
+  - Correlation Analysis
+  - Factor Analysis
+  - Descriptive Statistics
+- Enhanced data visualization for new statistical analyses
 
 ## Usage
 
@@ -56,6 +68,17 @@ This web application provides various psychological assessments related to the D
      - Data visualization
      - Formula used in the calculation
      - Step-by-step logic of the analysis
+   - Available analyses now include:
+     - Cronbach's Alpha
+     - Split-Half Reliability
+     - ANOVA
+     - Inter-Item Validity
+     - Psychometric Analysis
+     - IRT Analysis
+     - Regression Analysis
+     - Correlation Analysis
+     - Factor Analysis
+     - Descriptive Statistics
 
 ## Development
 

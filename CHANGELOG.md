@@ -27,6 +27,13 @@
 - Display of formulas and logic used in calculations
 - Integration of MathJax for rendering LaTeX formulas
 - Enhanced result display for all statistical analyses
+- Additional statistical analysis functions:
+  - IRT Analysis (2PL model)
+  - Regression Analysis
+  - Correlation Analysis
+  - Factor Analysis (PCA)
+  - Descriptive Statistics (mean, median, mode, std, min, max)
+- Enhanced data visualization for new statistical analyses
 
 ### Changed
 

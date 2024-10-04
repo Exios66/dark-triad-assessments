@@ -343,6 +343,11 @@
             <button onclick="performAnalysis('anova')">ANOVA</button>
             <button onclick="performAnalysis('interItem')">Inter-Item Validity</button>
             <button onclick="performAnalysis('psychometric')">Psychometric Analysis</button>
+            <button onclick="performAnalysis('irt')">IRT Analysis</button>
+            <button onclick="performAnalysis('regression')">Regression Analysis</button>
+            <button onclick="performAnalysis('correlation')">Correlation Analysis</button>
+            <button onclick="performAnalysis('factorAnalysis')">Factor Analysis</button>
+            <button onclick="performAnalysis('descriptive')">Descriptive Statistics</button>
             <input type="file" id="dataUpload" accept=".csv,.json" class="hidden">
             <button onclick="document.getElementById('dataUpload').click()">Upload Data</button>
         </div>
@@ -932,6 +937,21 @@
                     case 'psychometric':
                         performPsychometricAnalysis(data);
                         break;
+                    case 'irt':
+                        performIRTAnalysis(data);
+                        break;
+                    case 'regression':
+                        performRegressionAnalysis(data);
+                        break;
+                    case 'correlation':
+                        performCorrelationAnalysis(data);
+                        break;
+                    case 'factorAnalysis':
+                        performFactorAnalysis(data);
+                        break;
+                    case 'descriptive':
+                        performDescriptiveStatistics(data);
+                        break;
                 }
             };
 
@@ -1108,6 +1128,161 @@
             `;
 
             displayResults('Psychometric Analysis', results, formula, logic, data);
+        }
+
+        function performIRTAnalysis(data) {
+            // This is a simplified IRT analysis (2PL model)
+            const items = Object.keys(data[0]);
+            const n = data.length;
+            
+            const itemParameters = items.map(item => {
+                const responses = data.map(d => d[item]);
+                const mean = math.mean(responses);
+                const std = math.std(responses);
+                return {
+                    discrimination: 1 / std,
+                    difficulty: -mean / std
+                };
+            });
+
+            let results = 'IRT Analysis Results (2PL Model):\n\n';
+            items.forEach((item, index) => {
+                results += `${item}:\n`;
+                results += `  Discrimination (a): ${itemParameters[index].discrimination.toFixed(3)}\n`;
+                results += `  Difficulty (b): ${itemParameters[index].difficulty.toFixed(3)}\n\n`;
+            });
+
+            const formula = "P(\\theta) = \\frac{1}{1 + e^{-a(\\theta - b)}}";
+            const logic = `
+            1. Calculate mean and standard deviation for each item
+            2. Estimate discrimination (a) as 1 / std
+            3. Estimate difficulty (b) as -mean / std
+            4. These estimates are based on the 2PL IRT model
+            5. Display results for each item
+            `;
+
+            displayResults('IRT Analysis', results, formula, logic, data);
+        }
+
+        function performRegressionAnalysis(data) {
+            const items = Object.keys(data[0]);
+            const x = data.map(d => d[items[0]]);
+            const y = data.map(d => d[items[1]]);
+
+            const n = x.length;
+            const sumX = math.sum(x);
+            const sumY = math.sum(y);
+            const sumXY = math.sum(x.map((xi, i) => xi * y[i]));
+            const sumX2 = math.sum(x.map(xi => xi * xi));
+
+            const slope = (n * sumXY - sumX * sumY) / (n * sumX2 - sumX * sumX);
+            const intercept = (sumY - slope * sumX) / n;
+            const r2 = math.pow(math.correlation(x, y), 2);
+
+            const results = `
+            Regression Analysis Results:
+            y = ${slope.toFixed(3)}x + ${intercept.toFixed(3)}
+            R² = ${r2.toFixed(3)}
+            `;
+
+            const formula = "y = mx + b, \\quad R^2 = \\frac{\\sum_{i=1}^n (\\hat{y}_i - \\bar{y})^2}{\\sum_{i=1}^n (y_i - \\bar{y})^2}";
+            const logic = `
+            1. Calculate sums of x, y, xy, and x²
+            2. Calculate slope (m) and intercept (b)
+            3. Calculate R² (coefficient of determination)
+            4. Display regression equation and R²
+            `;
+
+            displayResults('Regression Analysis', results, formula, logic, data);
+        }
+
+        function performCorrelationAnalysis(data) {
+            const items = Object.keys(data[0]);
+            const correlationMatrix = [];
+
+            for (let i = 0; i < items.length; i++) {
+                correlationMatrix[i] = [];
+                for (let j = 0; j < items.length; j++) {
+                    const correlation = math.correlation(
+                        data.map(d => d[items[i]]),
+                        data.map(d => d[items[j]])
+                    );
+                    correlationMatrix[i][j] = correlation;
+                }
+            }
+
+            let results = 'Correlation Matrix:\n\n';
+            results += '     ' + items.join('    ') + '\n';
+            correlationMatrix.forEach((row, index) => {
+                results += items[index] + ' ' + row.map(v => v.toFixed(3).padStart(5)).join(' ') + '\n';
+            });
+
+            const formula = "r_{xy} = \\frac{\\sum_{i=1}^n (x_i - \\bar{x})(y_i - \\bar{y})}{\\sqrt{\\sum_{i=1}^n (x_i - \\bar{x})^2 \\sum_{i=1}^n (y_i - \\bar{y})^2}}";
+            const logic = `
+            1. Calculate correlation between each pair of items
+            2. Create a correlation matrix
+            3. Display the correlation matrix
+            `;
+
+            displayResults('Correlation Analysis', results, formula, logic, data);
+        }
+
+        function performFactorAnalysis(data) {
+            // This is a simplified principal component analysis
+            const items = Object.keys(data[0]);
+            const matrix = items.map(item => data.map(d => d[item]));
+            const covMatrix = math.cov(matrix);
+            const eigenvalues = math.eigs(covMatrix).values;
+            const totalVariance = math.sum(eigenvalues);
+
+            let results = 'Factor Analysis Results (PCA):\n\n';
+            results += 'Eigenvalues and Explained Variance:\n';
+            eigenvalues.forEach((ev, index) => {
+                const explainedVariance = (ev / totalVariance) * 100;
+                results += `Factor ${index + 1}: ${ev.toFixed(3)} (${explainedVariance.toFixed(2)}%)\n`;
+            });
+
+            const formula = "\\text{Cov}(X, Y) = \\frac{\\sum_{i=1}^n (x_i - \\bar{x})(y_i - \\bar{y})}{n - 1}";
+            const logic = `
+            1. Calculate the covariance matrix
+            2. Compute eigenvalues of the covariance matrix
+            3. Calculate explained variance for each factor
+            4. Display eigenvalues and explained variance
+            `;
+
+            displayResults('Factor Analysis', results, formula, logic, data);
+        }
+
+        function performDescriptiveStatistics(data) {
+            const items = Object.keys(data[0]);
+            let results = 'Descriptive Statistics:\n\n';
+
+            items.forEach(item => {
+                const values = data.map(d => d[item]);
+                const mean = math.mean(values);
+                const median = math.median(values);
+                const mode = math.mode(values);
+                const std = math.std(values);
+                const min = math.min(values);
+                const max = math.max(values);
+
+                results += `${item}:\n`;
+                results += `  Mean: ${mean.toFixed(3)}\n`;
+                results += `  Median: ${median.toFixed(3)}\n`;
+                results += `  Mode: ${mode.join(', ')}\n`;
+                results += `  Standard Deviation: ${std.toFixed(3)}\n`;
+                results += `  Min: ${min}\n`;
+                results += `  Max: ${max}\n\n`;
+            });
+
+            const formula = "\\bar{x} = \\frac{1}{n}\\sum_{i=1}^n x_i, \\quad s = \\sqrt{\\frac{1}{n-1}\\sum_{i=1}^n (x_i - \\bar{x})^2}";
+            const logic = `
+            1. Calculate mean, median, and mode for each item
+            2. Calculate standard deviation, min, and max for each item
+            3. Display results for each item
+            `;
+
+            displayResults('Descriptive Statistics', results, formula, logic, data);
         }
 
         function displayResults(title, results, formula, logic, data) {
