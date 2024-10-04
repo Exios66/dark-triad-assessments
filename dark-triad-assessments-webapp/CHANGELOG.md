@@ -1,3 +1,13 @@
+## [0.0.4] - 2024-10-04
+
+### Added
+- [v 1.0.2]
+- feat: Implement automated changelog update system
+- feat: Implement automated changelog system [v 0.0.1]
+- [v 1.0.1] A
+- [v 1.0.0] [Alpha]
+- Initial commit
+
 ## [0.0.3] - 2024-10-04
 
 ### Added

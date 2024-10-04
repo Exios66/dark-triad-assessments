@@ -41,21 +41,25 @@ The Dirty Dozen is a concise measure of the Dark Triad traits. It consists of 12
 ### Installation
 
 1. Clone the repository:
+
    ```
    git clone https://github.com/your-username/dark-triad-assessments-webapp.git
    ```
 
 2. Navigate to the project directory:
+
    ```
    cd dark-triad-assessments-webapp
    ```
 
 3. Install dependencies:
+
    ```
    npm install
    ```
 
 4. Start the development server:
+
    ```
    npm start
    ```
@@ -70,6 +74,26 @@ To run the test suite:
 npm test
 ```
 
+## Deployment
+
+This project is set up to deploy automatically to GitHub Pages using GitHub Actions. Every push to the `main` branch will trigger a new deployment.
+
+To deploy manually:
+
+1. Update the `homepage` field in `package.json` with your GitHub Pages URL:
+
+   ```json
+   "homepage": "https://your-username.github.io/dark-triad-assessments-webapp"
+   ```
+
+2. Run the deployment script:
+
+   ```shell
+   npm run deploy
+   ```
+
+This will build the app and push it to the `gh-pages` branch of your repository.
+
 ## Built With
 
 - React
@@ -78,9 +102,10 @@ npm test
 
 ## Project Structure
 
-
 ```
 dark-triad-assessments-webapp/
+├── public/
+├── src/
 │   ├── components/
 │   │   ├── Assessment/
 │   │   │   ├── SDT3/
