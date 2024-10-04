@@ -1,7 +1,6 @@
 import { useContext, useEffect, useState } from 'react';
 import { AssessmentContext } from '../contexts/AssessmentContext';
 import { getQuestions, calculateResults } from '../services/api';
-import { ASSESSMENT_TYPES } from '../utils/constants';
 
 export const useAssessment = (assessmentType) => {
   const { setCurrentAssessment, answers, setAnswers, setResults } = useContext(AssessmentContext);
