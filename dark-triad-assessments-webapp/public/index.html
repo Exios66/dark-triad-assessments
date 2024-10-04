@@ -1,0 +1,429 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8"/>
+    <title>Dark Triad Assessments</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
+    <meta name="description" content="Dark Triad Assessments Web Application"/>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        :root {
+            --primary-color: #3498db;
+            --secondary-color: #2ecc71;
+            --background-color: #f4f4f4;
+            --text-color: #333;
+            --button-hover-color: #2980b9;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            margin: 0;
+            padding: 0;
+            background-color: var(--background-color);
+            color: var(--text-color);
+            transition: background-color 0.3s, color 0.3s;
+        }
+
+        .dark-mode {
+            --primary-color: #2980b9;
+            --secondary-color: #27ae60;
+            --background-color: #2c3e50;
+            --text-color: #ecf0f1;
+            --button-hover-color: #3498db;
+        }
+
+        header {
+            background-color: var(--primary-color);
+            color: #fff;
+            text-align: center;
+            padding: 1rem;
+        }
+
+        nav {
+            background-color: var(--secondary-color);
+            padding: 0.5rem;
+        }
+
+        nav ul {
+            list-style-type: none;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+        }
+
+        nav ul li {
+            margin: 0 10px;
+        }
+
+        nav ul li a {
+            color: #fff;
+            text-decoration: none;
+        }
+
+        main {
+            padding: 2rem;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .assessment {
+            background-color: #fff;
+            border-radius: 5px;
+            padding: 1rem;
+            margin-bottom: 1rem;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+
+        button {
+            background-color: var(--primary-color);
+            color: #fff;
+            border: none;
+            padding: 0.5rem 1rem;
+            cursor: pointer;
+            border-radius: 3px;
+            transition: background-color 0.3s;
+        }
+
+        button:hover {
+            background-color: var(--button-hover-color);
+        }
+
+        .question {
+            margin-bottom: 1rem;
+        }
+
+        .options label {
+            display: block;
+            margin-bottom: 0.5rem;
+        }
+
+        #results {
+            background-color: #fff;
+            border-radius: 5px;
+            padding: 1rem;
+            margin-top: 1rem;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+
+        #darkModeToggle {
+            position: fixed;
+            top: 10px;
+            right: 10px;
+            z-index: 1000;
+            background-color: transparent;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        #progressBarContainer {
+            width: 100%;
+            background-color: #ddd;
+            border-radius: 5px;
+            margin-bottom: 1rem;
+        }
+
+        #progressBar {
+            width: 0;
+            height: 20px;
+            background-color: var(--primary-color);
+            border-radius: 5px;
+            text-align: center;
+            line-height: 20px;
+            color: white;
+        }
+
+        .trait-explanation {
+            cursor: help;
+            margin-left: 5px;
+        }
+
+        #intro {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: var(--primary-color);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+            transition: opacity 1s;
+        }
+
+        #intro h1 {
+            color: #fff;
+            font-size: 2.5rem;
+            text-align: center;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .assessment, #results, #assessmentQuestions {
+            animation: fadeIn 0.5s ease-in-out;
+        }
+    </style>
+</head>
+<body>
+    <div id="intro">
+        <h1>Welcome to Dark Triad Assessments</h1>
+    </div>
+    <header>
+        <h1>Dark Triad Assessments</h1>
+    </header>
+    <button id="darkModeToggle">🌙</button>
+    <nav>
+        <ul>
+            <li><a href="#sdt3">SDT3</a></li>
+            <li><a href="#dirtyDozen">Dirty Dozen</a></li>
+            <li><a href="#sdt4">SDT4</a></li>
+            <li><a href="#machIV">MACH IV</a></li>
+        </ul>
+    </nav>
+    <main>
+        <!-- Assessments -->
+        <div id="assessments">
+            <div id="sdt3" class="assessment">
+                <h2>Short Dark Triad (SDT3)</h2>
+                <p>The SDT3 assesses three personality traits: Machiavellianism, Narcissism, and Psychopathy.</p>
+                <button onclick="startAssessment('sdt3')">Start SDT3 Assessment</button>
+            </div>
+            <div id="dirtyDozen" class="assessment">
+                <h2>Dirty Dozen</h2>
+                <p>The Dirty Dozen is a brief measure of the Dark Triad personality traits.</p>
+                <button onclick="startAssessment('dirtyDozen')">Start Dirty Dozen Assessment</button>
+            </div>
+            <div id="sdt4" class="assessment">
+                <h2>Short Dark Tetrad (SDT4)</h2>
+                <p>The SDT4 measures four dark personality traits: Machiavellianism, Narcissism, Psychopathy, and Sadism.</p>
+                <button onclick="startAssessment('sdt4')">Start SDT4 Assessment</button>
+            </div>
+            <div id="machIV" class="assessment">
+                <h2>MACH IV</h2>
+                <p>The MACH IV is a test of Machiavellianism, measuring a person's willingness to manipulate others.</p>
+                <button onclick="startAssessment('machIV')">Start MACH IV Assessment</button>
+            </div>
+        </div>
+        <!-- Progress Bar -->
+        <div id="progressBarContainer" class="hidden">
+            <div id="progressBar"></div>
+        </div>
+        <!-- Assessment Questions -->
+        <div id="assessmentQuestions" class="hidden"></div>
+        <!-- Results -->
+        <div id="results" class="hidden"></div>
+        <!-- Chart -->
+        <canvas id="resultsChart" class="hidden"></canvas>
+    </main>
+
+    <script>
+        // Dark mode toggle
+        const darkModeToggle = document.getElementById('darkModeToggle');
+        darkModeToggle.addEventListener('click', () => {
+            document.body.classList.toggle('dark-mode');
+            darkModeToggle.textContent = document.body.classList.contains('dark-mode') ? '☀️' : '🌙';
+        });
+
+        // Hide intro screen after 3 seconds
+        setTimeout(() => {
+            const intro = document.getElementById('intro');
+            intro.style.opacity = '0';
+            setTimeout(() => {
+                intro.style.display = 'none';
+            }, 1000);
+        }, 3000);
+
+        // Assessment questions
+        const assessments = {
+            sdt3: [
+                { question: "It's not wise to tell your secrets.", trait: "Machiavellianism" },
+                { question: "I like to use clever manipulation to get my way.", trait: "Machiavellianism" },
+                { question: "Whatever it takes, you must get the important people on your side.", trait: "Machiavellianism" },
+                { question: "People see me as a natural leader.", trait: "Narcissism" },
+                { question: "I hate being the center of attention.", trait: "Narcissism", reversed: true },
+                { question: "Many group activities tend to be dull without me.", trait: "Narcissism" },
+                { question: "I like to get revenge on authorities.", trait: "Psychopathy" },
+                { question: "I avoid dangerous situations.", trait: "Psychopathy", reversed: true },
+                { question: "Payback needs to be quick and nasty.", trait: "Psychopathy" }
+            ],
+            dirtyDozen: [
+                { question: "I tend to manipulate others to get my way.", trait: "Machiavellianism" },
+                { question: "I have used deceit or lied to get my way.", trait: "Machiavellianism" },
+                { question: "I have used flattery to get my way.", trait: "Machiavellianism" },
+                { question: "I tend to exploit others towards my own end.", trait: "Machiavellianism" },
+                { question: "I tend to lack remorse.", trait: "Psychopathy" },
+                { question: "I tend to be unconcerned with the morality of my actions.", trait: "Psychopathy" },
+                { question: "I tend to be callous or insensitive.", trait: "Psychopathy" },
+                { question: "I tend to be cynical.", trait: "Psychopathy" },
+                { question: "I tend to want others to admire me.", trait: "Narcissism" },
+                { question: "I tend to want others to pay attention to me.", trait: "Narcissism" },
+                { question: "I tend to seek prestige or status.", trait: "Narcissism" },
+                { question: "I tend to expect special favors from others.", trait: "Narcissism" }
+            ],
+            sdt4: [
+                // Include SDT4 questions here
+            ],
+            machIV: [
+                // Include MACH IV questions here
+            ]
+        };
+
+        let currentAssessment = '';
+        let currentQuestionIndex = 0;
+        let answers = {};
+
+        function startAssessment(assessment) {
+            currentAssessment = assessment;
+            currentQuestionIndex = 0;
+            answers = {};
+            document.getElementById('assessments').classList.add('hidden');
+            document.getElementById('assessmentQuestions').classList.remove('hidden');
+            document.getElementById('progressBarContainer').classList.remove('hidden');
+            showQuestion();
+        }
+
+        function showQuestion() {
+            const questionContainer = document.getElementById('assessmentQuestions');
+            const question = assessments[currentAssessment][currentQuestionIndex];
+            const totalQuestions = assessments[currentAssessment].length;
+
+            questionContainer.innerHTML = `
+                <div class="question">
+                    <h3>Question ${currentQuestionIndex + 1} of ${totalQuestions}</h3>
+                    <p>${question.question}</p>
+                    <div class="options">
+                        ${[1, 2, 3, 4, 5].map(value => `
+                            <label>
+                                <input type="radio" name="answer" value="${value}">
+                                ${value} - ${getScaleLabel(value)}
+                            </label>
+                        `).join('')}
+                    </div>
+                </div>
+                <button onclick="submitAnswer()">Next</button>
+            `;
+
+            updateProgressBar();
+        }
+
+        function getScaleLabel(value) {
+            const labels = ['Strongly Disagree', 'Disagree', 'Neutral', 'Agree', 'Strongly Agree'];
+            return labels[value - 1];
+        }
+
+        function submitAnswer() {
+            const selectedAnswer = document.querySelector('input[name="answer"]:checked');
+            if (selectedAnswer) {
+                const question = assessments[currentAssessment][currentQuestionIndex];
+                const score = parseInt(selectedAnswer.value);
+                answers[question.trait] = (answers[question.trait] || 0) + (question.reversed ? 6 - score : score);
+                
+                currentQuestionIndex++;
+                if (currentQuestionIndex < assessments[currentAssessment].length) {
+                    showQuestion();
+                } else {
+                    showResults();
+                }
+            } else {
+                alert('Please select an answer before proceeding.');
+            }
+        }
+
+        function updateProgressBar() {
+            const progressBar = document.getElementById('progressBar');
+            const progress = ((currentQuestionIndex + 1) / assessments[currentAssessment].length) * 100;
+            progressBar.style.width = `${progress}%`;
+            progressBar.textContent = `${Math.round(progress)}%`;
+        }
+
+        function showResults() {
+            document.getElementById('assessmentQuestions').classList.add('hidden');
+            document.getElementById('progressBarContainer').classList.add('hidden');
+            document.getElementById('results').classList.remove('hidden');
+            document.getElementById('resultsChart').classList.remove('hidden');
+
+            const traits = Object.keys(answers);
+            const scores = traits.map(trait => {
+                const maxScore = assessments[currentAssessment].filter(q => q.trait === trait).length * 5;
+                return (answers[trait] / maxScore) * 100;
+            });
+
+            const resultsContainer = document.getElementById('results');
+            resultsContainer.innerHTML = `
+                <h2>Your Results</h2>
+                ${traits.map((trait, index) => `
+                    <p>${trait}: ${scores[index].toFixed(2)}% 
+                    <span class="trait-explanation" title="${getTraitExplanation(trait)}">ℹ️</span></p>
+                `).join('')}
+                <button onclick="resetAssessment()">Take Another Assessment</button>
+            `;
+
+            createChart(traits, scores);
+        }
+
+        function getTraitExplanation(trait) {
+            const explanations = {
+                'Machiavellianism': 'Tendency to manipulate and exploit others for personal gain.',
+                'Narcissism': 'Excessive self-love, grandiosity, and need for admiration.',
+                'Psychopathy': 'Lack of empathy, impulsivity, and antisocial behavior.',
+                'Sadism': 'Deriving pleasure from inflicting pain or humiliation on others.'
+            };
+            return explanations[trait] || 'No explanation available.';
+        }
+
+        function createChart(traits, scores) {
+            const ctx = document.getElementById('resultsChart').getContext('2d');
+            new Chart(ctx, {
+                type: 'radar',
+                data: {
+                    labels: traits,
+                    datasets: [{
+                        label: 'Your Scores',
+                        data: scores,
+                        backgroundColor: 'rgba(255, 99, 132, 0.2)',
+                        borderColor: 'rgb(255, 99, 132)',
+                        pointBackgroundColor: 'rgb(255, 99, 132)',
+                        pointBorderColor: '#fff',
+                        pointHoverBackgroundColor: '#fff',
+                        pointHoverBorderColor: 'rgb(255, 99, 132)'
+                    }]
+                },
+                options: {
+                    elements: {
+                        line: {
+                            borderWidth: 3
+                        }
+                    },
+                    scales: {
+                        r: {
+                            angleLines: {
+                                display: false
+                            },
+                            suggestedMin: 0,
+                            suggestedMax: 100
+                        }
+                    }
+                }
+            });
+        }
+
+        function resetAssessment() {
+            document.getElementById('results').classList.add('hidden');
+            document.getElementById('resultsChart').classList.add('hidden');
+            document.getElementById('assessments').classList.remove('hidden');
+            currentAssessment = '';
+            currentQuestionIndex = 0;
+            answers = {};
+        }
+    </script>
+</body>
+</html>
