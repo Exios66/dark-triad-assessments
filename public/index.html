@@ -1,254 +1,623 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="utf-8" />
-    <link rel="icon" href="%PUBLIC_URL%/favicon.ico" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <meta name="theme-color" content="#000000" />
-    <meta name="description" content="Dark Triad Assessments Web Application" />
-    <link rel="apple-touch-icon" href="%PUBLIC_URL%/logo192.png" />
-    <link rel="manifest" href="%PUBLIC_URL%/manifest.json" />
+    <meta charset="utf-8"/>
     <title>Dark Triad Assessments</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
+    <meta name="description" content="Dark Triad Assessments Web Application"/>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         :root {
-            --bg-color: #f0f0f0;
+            --primary-color: #3498db;
+            --secondary-color: #2ecc71;
+            --background-color: #f4f4f4;
             --text-color: #333;
-            --primary-color: #4a90e2;
-            --secondary-color: #e74c3c;
+            --button-hover-color: #2980b9;
         }
 
         body {
             font-family: Arial, sans-serif;
-            background-color: var(--bg-color);
-            color: var(--text-color);
-            transition: background-color 0.3s, color 0.3s;
+            line-height: 1.6;
             margin: 0;
             padding: 0;
+            background-color: var(--background-color);
+            color: var(--text-color);
+            transition: background-color 0.3s, color 0.3s;
         }
 
         .dark-mode {
-            --bg-color: #333;
-            --text-color: #f0f0f0;
-            --primary-color: #64b5f6;
-            --secondary-color: #ff7675;
+            --primary-color: #2980b9;
+            --secondary-color: #27ae60;
+            --background-color: #2c3e50;
+            --text-color: #ecf0f1;
+            --button-hover-color: #3498db;
         }
 
         header {
             background-color: var(--primary-color);
-            color: white;
+            color: #fff;
             text-align: center;
             padding: 1rem;
         }
 
         nav {
-            background-color: #333;
+            background-color: var(--secondary-color);
             padding: 0.5rem;
         }
 
         nav ul {
             list-style-type: none;
             padding: 0;
-            margin: 0;
             display: flex;
             justify-content: center;
         }
 
         nav ul li {
-            margin: 0 1rem;
+            margin: 0 10px;
         }
 
         nav ul li a {
-            color: white;
+            color: #fff;
             text-decoration: none;
-            font-weight: bold;
         }
 
         main {
+            padding: 2rem;
             max-width: 800px;
-            margin: 2rem auto;
-            padding: 1rem;
+            margin: 0 auto;
         }
 
         .assessment {
-            background-color: white;
+            background-color: #fff;
             border-radius: 5px;
             padding: 1rem;
             margin-bottom: 1rem;
             box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-            transition: transform 0.3s;
-        }
-
-        .assessment:hover {
-            transform: translateY(-5px);
         }
 
         button {
             background-color: var(--primary-color);
-            color: white;
+            color: #fff;
             border: none;
             padding: 0.5rem 1rem;
-            border-radius: 3px;
             cursor: pointer;
+            border-radius: 3px;
             transition: background-color 0.3s;
         }
 
         button:hover {
-            background-color: var(--secondary-color);
+            background-color: var(--button-hover-color);
+        }
+
+        .question {
+            margin-bottom: 1rem;
+        }
+
+        .options label {
+            display: block;
+            margin-bottom: 0.5rem;
+        }
+
+        #results {
+            background-color: #fff;
+            border-radius: 5px;
+            padding: 1rem;
+            margin-top: 1rem;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
         }
 
         #darkModeToggle {
             position: fixed;
-            top: 1rem;
-            right: 1rem;
+            top: 10px;
+            right: 10px;
             z-index: 1000;
+            background-color: transparent;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
         }
 
         .hidden {
             display: none;
         }
 
-        #results {
-            background-color: #f9f9f9;
-            border: 1px solid #ddd;
+        #progressBarContainer {
+            width: 100%;
+            background-color: #ddd;
             border-radius: 5px;
-            padding: 1rem;
-            margin-top: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        #progressBar {
+            width: 0;
+            height: 20px;
+            background-color: var(--primary-color);
+            border-radius: 5px;
+            text-align: center;
+            line-height: 20px;
+            color: white;
+        }
+
+        .trait-explanation {
+            cursor: help;
+            margin-left: 5px;
+        }
+
+        #intro {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: var(--primary-color);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+            transition: opacity 1s;
+        }
+
+        #intro h1 {
+            color: #fff;
+            font-size: 2.5rem;
+            text-align: center;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .assessment, #results, #assessmentQuestions {
+            animation: fadeIn 0.5s ease-in-out;
         }
     </style>
 </head>
 <body>
-    <noscript>You need to enable JavaScript to run this app.</noscript>
-    <div id="root">
-        <header>
-            <h1>Dark Triad Assessments</h1>
-        </header>
-        <button id="darkModeToggle">Toggle Dark Mode</button>
-        <nav>
-            <ul>
-                <li><a href="#" onclick="showAssessment('sdt3')">SDT3</a></li>
-                <li><a href="#" onclick="showAssessment('dirtyDozen')">Dirty Dozen</a></li>
-                <li><a href="#" onclick="showAssessment('sdt4')">SDT4</a></li>
-                <li><a href="#" onclick="showAssessment('machIV')">MACH IV</a></li>
-            </ul>
-        </nav>
-        <main>
-            <div id="sdt3" class="assessment hidden">
+    <div id="intro">
+        <h1>Welcome to Dark Triad Assessments</h1>
+    </div>
+    <header>
+        <h1>Dark Triad Assessments</h1>
+    </header>
+    <button id="darkModeToggle">🌙</button>
+    <nav>
+        <ul>
+            <li><a href="#sdt3">SDT3</a></li>
+            <li><a href="#dirtyDozen">Dirty Dozen</a></li>
+            <li><a href="#sdt4">SDT4</a></li>
+            <li><a href="#machIV">MACH IV</a></li>
+            <li><a href="#mmpi">MMPI-style</a></li>
+            <li><a href="#hexaco">HEXACO</a></li>
+            <li><a href="#ocean">OCEAN</a></li>
+        </ul>
+    </nav>
+    <main>
+        <!-- Assessments -->
+        <div id="assessments">
+            <div id="sdt3" class="assessment">
                 <h2>Short Dark Triad (SDT3)</h2>
                 <p>The SDT3 assesses three personality traits: Machiavellianism, Narcissism, and Psychopathy.</p>
                 <button onclick="startAssessment('sdt3')">Start SDT3 Assessment</button>
             </div>
-            <div id="dirtyDozen" class="assessment hidden">
+            <div id="dirtyDozen" class="assessment">
                 <h2>Dirty Dozen</h2>
                 <p>The Dirty Dozen is a brief measure of the Dark Triad personality traits.</p>
                 <button onclick="startAssessment('dirtyDozen')">Start Dirty Dozen Assessment</button>
             </div>
-            <div id="sdt4" class="assessment hidden">
+            <div id="sdt4" class="assessment">
                 <h2>Short Dark Tetrad (SDT4)</h2>
                 <p>The SDT4 measures four dark personality traits: Machiavellianism, Narcissism, Psychopathy, and Sadism.</p>
                 <button onclick="startAssessment('sdt4')">Start SDT4 Assessment</button>
             </div>
-            <div id="machIV" class="assessment hidden">
+            <div id="machIV" class="assessment">
                 <h2>MACH IV</h2>
                 <p>The MACH IV is a test of Machiavellianism, measuring a person's willingness to manipulate others.</p>
                 <button onclick="startAssessment('machIV')">Start MACH IV Assessment</button>
             </div>
-            <div id="assessmentQuestions" class="hidden"></div>
-            <div id="results" class="hidden"></div>
-        </main>
-    </div>
-    <script>
-        const darkModeToggle = document.getElementById('darkModeToggle');
-        const body = document.body;
+            <div id="mmpi" class="assessment">
+                <h2>MMPI-style Assessment</h2>
+                <p>This assessment focuses on psychiatric disorder traits.</p>
+                <button onclick="startAssessment('mmpi')">Start MMPI-style Assessment</button>
+            </div>
+            <div id="hexaco" class="assessment">
+                <h2>HEXACO Personality Assessment</h2>
+                <p>This assessment measures six personality traits: Honesty-Humility, Emotionality, Extraversion, Agreeableness, Conscientiousness, and Openness to Experience.</p>
+                <button onclick="startAssessment('hexaco')">Start HEXACO Assessment</button>
+            </div>
+            <div id="ocean" class="assessment">
+                <h2>OCEAN (Big Five) Personality Assessment</h2>
+                <p>This assessment measures five personality traits: Openness, Conscientiousness, Extraversion, Agreeableness, and Neuroticism.</p>
+                <button onclick="startAssessment('ocean')">Start OCEAN Assessment</button>
+            </div>
+        </div>
+        <!-- Progress Bar -->
+        <div id="progressBarContainer" class="hidden">
+            <div id="progressBar"></div>
+        </div>
+        <!-- Assessment Questions -->
+        <div id="assessmentQuestions" class="hidden"></div>
+        <!-- Results -->
+        <div id="results" class="hidden"></div>
+        <!-- Chart -->
+        <canvas id="resultsChart" class="hidden"></canvas>
+    </main>
 
+    <script>
+        // Dark mode toggle
+        const darkModeToggle = document.getElementById('darkModeToggle');
         darkModeToggle.addEventListener('click', () => {
-            body.classList.toggle('dark-mode');
+            document.body.classList.toggle('dark-mode');
+            darkModeToggle.textContent = document.body.classList.contains('dark-mode') ? '☀️' : '🌙';
         });
 
-        function showAssessment(assessmentId) {
-            const assessments = document.querySelectorAll('.assessment');
-            assessments.forEach(assessment => assessment.classList.add('hidden'));
-            document.getElementById(assessmentId).classList.remove('hidden');
+        // Hide intro screen after 3 seconds
+        setTimeout(() => {
+            const intro = document.getElementById('intro');
+            intro.style.opacity = '0';
+            setTimeout(() => {
+                intro.style.display = 'none';
+            }, 1000);
+        }, 3000);
+
+        // Assessment questions
+        const assessments = {
+            sdt3: [
+                { question: "It's not wise to tell your secrets.", trait: "Machiavellianism" },
+                { question: "People see me as a natural leader.", trait: "Narcissism" },
+                { question: "I like to get revenge on authorities.", trait: "Psychopathy" },
+                { question: "I like to use clever manipulation to get my way.", trait: "Machiavellianism" },
+                { question: "I hate being the center of attention.", trait: "Narcissism", reversed: true },
+                { question: "I avoid dangerous situations at all costs.", trait: "Psychopathy", reversed: true },
+                { question: "Whatever it takes, you must get the important people on your side.", trait: "Machiavellianism" },
+                { question: "Many group activities tend to be dull without me.", trait: "Narcissism" },
+                { question: "Payback needs to be quick and nasty.", trait: "Psychopathy" },
+                { question: "Avoid direct conflict with others because they may be useful in the future.", trait: "Machiavellianism" },
+                { question: "I know that I am special because everyone keeps telling me so.", trait: "Narcissism" },
+                { question: "People often say I'm out of control.", trait: "Psychopathy", reversed: true },
+                { question: "It's wise to keep track of information that you can use against people later.", trait: "Machiavellianism" },
+                { question: "I like to get acquainted with important people.", trait: "Narcissism" },
+                { question: "It's true that I can be mean to others.", trait: "Psychopathy" },
+                { question: "You should wait for the right time to get back at people.", trait: "Machiavellianism" },
+                { question: "I feel embarrassed if someone compliments me.", trait: "Narcissism", reversed: true },
+                { question: "People who mess with me always regret it.", trait: "Psychopathy" },
+                { question: "There are things you should hide from other people because they don't need to know.", trait: "Machiavellianism" },
+                { question: "I have been compared to famous people.", trait: "Narcissism" },
+                { question: "I have never gotten into trouble with the law.", trait: "Psychopathy", reversed: true },
+                { question: "Make sure your plans benefit you, not others.", trait: "Machiavellianism" },
+                { question: "I am just an average person.", trait: "Narcissism", reversed: true },
+                { question: "I enjoy having sex with people I hardly know.", trait: "Psychopathy" },
+                { question: "Most people can be easily manipulated.", trait: "Machiavellianism" },
+                { question: "I insist on getting the respect I deserve.", trait: "Narcissism" },
+                { question: "I'll say anything to get what I want.", trait: "Psychopathy" }
+            ],
+            dirtyDozen: [
+                { question: "I tend to manipulate others to get my way.", trait: "Machiavellianism" },
+                { question: "I have used deceit or lied to get my way.", trait: "Machiavellianism" },
+                { question: "I have used flattery to get my way.", trait: "Machiavellianism" },
+                { question: "I tend to exploit others towards my own end.", trait: "Machiavellianism" },
+                { question: "I tend to lack remorse.", trait: "Psychopathy" },
+                { question: "I tend to be unconcerned with the morality of my actions.", trait: "Psychopathy" },
+                { question: "I tend to be callous or insensitive.", trait: "Psychopathy" },
+                { question: "I tend to be cynical.", trait: "Psychopathy" },
+                { question: "I tend to want others to admire me.", trait: "Narcissism" },
+                { question: "I tend to want others to pay attention to me.", trait: "Narcissism" },
+                { question: "I tend to seek prestige or status.", trait: "Narcissism" },
+                { question: "I tend to expect special favors from others.", trait: "Narcissism" }
+            ],
+            sdt4: [
+                { question: "It's not wise to tell your secrets.", trait: "Machiavellianism" },
+                { question: "I like to use clever manipulation to get my way.", trait: "Machiavellianism" },
+                { question: "Whatever it takes, you must get the important people on your side.", trait: "Machiavellianism" },
+                { question: "Avoid direct conflict with others because they may be useful in the future.", trait: "Machiavellianism" },
+                { question: "It's wise to keep track of information that you can use against people later.", trait: "Machiavellianism" },
+                { question: "You should wait for the right time to get back at people.", trait: "Machiavellianism" },
+                { question: "There are things you should hide from other people because they don't need to know.", trait: "Machiavellianism" },
+                { question: "People see me as a natural leader.", trait: "Narcissism" },
+                { question: "I have a unique talent for persuading people.", trait: "Narcissism" },
+                { question: "Group activities tend to be dull without me.", trait: "Narcissism" },
+                { question: "I know that I am special because everyone keeps telling me so.", trait: "Narcissism" },
+                { question: "I have a great deal of natural talent.", trait: "Narcissism" },
+                { question: "I like to show off every now and then.", trait: "Narcissism" },
+                { question: "I'm likely to become a future star in some area.", trait: "Narcissism" },
+                { question: "People who mess with me always regret it.", trait: "Psychopathy" },
+                { question: "You should take advantage of other people before they do it to you.", trait: "Psychopathy" },
+                { question: "People often say I'm out of control.", trait: "Psychopathy" },
+                { question: "I sometimes get into trouble for breaking rules.", trait: "Psychopathy" },
+                { question: "I tend to fight against authorities and their rules.", trait: "Psychopathy" },
+                { question: "I've been in more fights than most people of my age and gender.", trait: "Psychopathy" },
+                { question: "I tend to dive in, then ask questions later.", trait: "Psychopathy" },
+                { question: "I love to watch YouTube clips of people fighting.", trait: "Sadism" },
+                { question: "I enjoy watching violent sports.", trait: "Sadism" },
+                { question: "Some people deserve to suffer.", trait: "Sadism" },
+                { question: "Just for kicks, I've said mean things on social media.", trait: "Sadism" },
+                { question: "I know how to hurt someone with words alone.", trait: "Sadism" },
+                { question: "I enjoy making jokes at the expense of others.", trait: "Sadism" },
+                { question: "I have fantasies about hurting people who have wronged me.", trait: "Sadism" }
+            ],
+            machIV: [
+                // Include MACH IV questions here
+            ],
+            mmpi: [
+                { question: "I often feel hopeless about the future.", trait: "Depression" },
+                { question: "I struggle to find joy in things I once enjoyed.", trait: "Depression" },
+                { question: "I wake up feeling more tired than before I went to bed.", trait: "Depression" },
+                { question: "I have difficulty concentrating on even simple tasks.", trait: "Depression" },
+                { question: "I find myself withdrawing from people and activities.", trait: "Depression" },
+                { question: "I frequently feel nervous or on edge without reason.", trait: "Anxiety" },
+                { question: "My thoughts often race uncontrollably.", trait: "Anxiety" },
+                { question: "I avoid situations that might make me feel panicked.", trait: "Anxiety" },
+                { question: "I have recurring nightmares or bad dreams.", trait: "Anxiety" },
+                { question: "My heart often pounds or I feel short of breath, even when I am not exerting myself.", trait: "Anxiety" },
+                { question: "I believe people are often out to get me.", trait: "Paranoia" },
+                { question: "I find myself questioning the motives of others.", trait: "Paranoia" },
+                { question: "I feel like I'm constantly being watched or followed.", trait: "Paranoia" },
+                { question: "I have trouble trusting people, even those close to me.", trait: "Paranoia" },
+                { question: "I feel like others are discussing me behind my back.", trait: "Paranoia" },
+                { question: "I experience odd or unusual thoughts that others might not understand.", trait: "Schizotypal Symptoms" },
+                { question: "I often feel disconnected from my surroundings, like I'm in a dream.", trait: "Schizotypal Symptoms" },
+                { question: "I believe that I have special powers or insights others don't have.", trait: "Schizotypal Symptoms" },
+                { question: "I sometimes hear things that other people say they can't hear.", trait: "Schizotypal Symptoms" },
+                { question: "I have unusual sensory experiences, like seeing things in my peripheral vision that aren't there.", trait: "Schizotypal Symptoms" },
+                { question: "I feel an overwhelming need to check things repeatedly.", trait: "Obsessive-Compulsive Symptoms" },
+                { question: "I get uncomfortable if things are not in a specific order.", trait: "Obsessive-Compulsive Symptoms" },
+                { question: "I often have intrusive thoughts that I can't seem to shake off.", trait: "Obsessive-Compulsive Symptoms" },
+                { question: "I spend a lot of time performing rituals to calm myself.", trait: "Obsessive-Compulsive Symptoms" },
+                { question: "I feel anxious when I can't complete a task perfectly.", trait: "Obsessive-Compulsive Symptoms" }
+            ],
+            hexaco: [
+                { question: "I am not comfortable taking advantage of others, even if it would benefit me.", trait: "Honesty-Humility" },
+                { question: "I believe that everyone should be treated equally, no matter their status.", trait: "Honesty-Humility" },
+                { question: "I would never accept a bribe, no matter how small or large.", trait: "Honesty-Humility" },
+                { question: "I don't mind bending the rules if it works in my favor.", trait: "Honesty-Humility", reversed: true },
+                { question: "I feel it's important to be modest, even if I have achieved a lot.", trait: "Honesty-Humility" },
+                { question: "I often feel overwhelmed by my emotions.", trait: "Emotionality" },
+                { question: "I tend to cry easily when I am upset.", trait: "Emotionality" },
+                { question: "I rely heavily on others for emotional support.", trait: "Emotionality" },
+                { question: "I remain calm even in emotionally challenging situations.", trait: "Emotionality", reversed: true },
+                { question: "I am deeply affected by the suffering of others.", trait: "Emotionality" },
+                { question: "I am energized by being around other people.", trait: "Extraversion" },
+                { question: "I feel comfortable speaking in front of large groups.", trait: "Extraversion" },
+                { question: "I often take charge in social situations.", trait: "Extraversion" },
+                { question: "I find it exhausting to interact with others for long periods.", trait: "Extraversion", reversed: true },
+                { question: "I enjoy being the center of attention at parties.", trait: "Extraversion" },
+                { question: "I tend to forgive others easily, even when they've wronged me.", trait: "Agreeableness" },
+                { question: "I avoid arguing, even if I strongly disagree with someone.", trait: "Agreeableness" },
+                { question: "I am not afraid to stand my ground, even if it causes conflict.", trait: "Agreeableness", reversed: true },
+                { question: "I often find myself compromising to keep others happy.", trait: "Agreeableness" },
+                { question: "I tend to be skeptical of other people's intentions.", trait: "Agreeableness", reversed: true },
+                { question: "I always complete my tasks thoroughly and on time.", trait: "Conscientiousness" },
+                { question: "I make sure that everything I do is done as carefully as possible.", trait: "Conscientiousness" },
+                { question: "I don't worry about small details when finishing tasks.", trait: "Conscientiousness", reversed: true },
+                { question: "I like to plan my day in advance and stick to it.", trait: "Conscientiousness" },
+                { question: "I avoid putting off tasks that are important.", trait: "Conscientiousness" }
+            ],
+            ocean: [
+                { question: "I love to try new things, even if they are outside my comfort zone.", trait: "Openness to Experience" },
+                { question: "I am constantly seeking out new ideas and concepts to explore.", trait: "Openness to Experience" },
+                { question: "I prefer sticking to what I know rather than exploring new experiences.", trait: "Openness to Experience", reversed: true },
+                { question: "I enjoy discussing abstract concepts, like philosophy or the meaning of life.", trait: "Openness to Experience" },
+                { question: "I am not interested in changing my routine or experimenting with new hobbies.", trait: "Openness to Experience", reversed: true },
+                { question: "I always make sure my work is precise and organized.", trait: "Conscientiousness" },
+                { question: "I feel uncomfortable if things are messy or incomplete.", trait: "Conscientiousness" },
+                { question: "I tend to procrastinate, even when deadlines are near.", trait: "Conscientiousness", reversed: true },
+                { question: "I am very goal-oriented and work hard to achieve what I set out to do.", trait: "Conscientiousness" },
+                { question: "I often fail to follow through with plans or promises.", trait: "Conscientiousness", reversed: true },
+                { question: "I feel energized after spending time with other people.", trait: "Extraversion" },
+                { question: "I am comfortable starting conversations with strangers.", trait: "Extraversion" },
+                { question: "I prefer to stay in and keep to myself.", trait: "Extraversion", reversed: true },
+                { question: "I enjoy meeting new people and expanding my social circle.", trait: "Extraversion" },
+                { question: "I find it exhausting to be in large social groups.", trait: "Extraversion", reversed: true },
+                { question: "I often go out of my way to make others feel comfortable.", trait: "Agreeableness" },
+                { question: "I get annoyed easily and find it hard to be patient with others.", trait: "Agreeableness", reversed: true },
+                { question: "I believe it's important to help others whenever I can.", trait: "Agreeableness" },
+                { question: "I have a hard time letting go of grudges.", trait: "Agreeableness", reversed: true },
+                { question: "I enjoy listening to other people's problems and offering support.", trait: "Agreeableness" },
+                { question: "I often feel anxious or worried, even over small things.", trait: "Neuroticism" },
+                { question: "I tend to react emotionally, even in minor situations.", trait: "Neuroticism" },
+                { question: "I feel calm and relaxed most of the time.", trait: "Neuroticism", reversed: true },
+                { question: "I often feel moody and irritable, without knowing why.", trait: "Neuroticism" },
+                { question: "I am frequently overwhelmed by stress, even when tasks are manageable.", trait: "Neuroticism" }
+            ]
+        };
+
+        let currentAssessment = '';
+        let currentQuestionIndex = 0;
+        let answers = {};
+
+        function startAssessment(assessment) {
+            currentAssessment = assessment;
+            currentQuestionIndex = 0;
+            answers = {};
+            document.getElementById('assessments').classList.add('hidden');
+            document.getElementById('assessmentQuestions').classList.remove('hidden');
+            document.getElementById('progressBarContainer').classList.remove('hidden');
+            showQuestion();
         }
 
-        function startAssessment(assessmentId) {
-            const assessmentQuestions = document.getElementById('assessmentQuestions');
-            assessmentQuestions.innerHTML = '';
-            assessmentQuestions.classList.remove('hidden');
+        function showQuestion() {
+            const questionContainer = document.getElementById('assessmentQuestions');
+            const question = assessments[currentAssessment][currentQuestionIndex];
+            const totalQuestions = assessments[currentAssessment].length;
 
-            const questions = getQuestions(assessmentId);
-            questions.forEach((question, index) => {
-                const questionElement = document.createElement('div');
-                questionElement.innerHTML = `
-                    <p>${index + 1}. ${question}</p>
-                    <input type="radio" name="q${index}" value="1"> Strongly Disagree
-                    <input type="radio" name="q${index}" value="2"> Disagree
-                    <input type="radio" name="q${index}" value="3"> Neutral
-                    <input type="radio" name="q${index}" value="4"> Agree
-                    <input type="radio" name="q${index}" value="5"> Strongly Agree
-                `;
-                assessmentQuestions.appendChild(questionElement);
+            questionContainer.innerHTML = `
+                <div class="question">
+                    <h3>Question ${currentQuestionIndex + 1} of ${totalQuestions}</h3>
+                    <p>${question.question}</p>
+                    <div class="options">
+                        ${[1, 2, 3, 4, 5].map(value => `
+                            <label>
+                                <input type="radio" name="answer" value="${value}">
+                                ${value} - ${getScaleLabel(value)}
+                            </label>
+                        `).join('')}
+                    </div>
+                </div>
+                <button onclick="submitAnswer()">Next</button>
+            `;
+
+            updateProgressBar();
+        }
+
+        function getScaleLabel(value) {
+            const labels = ['Strongly Disagree', 'Disagree', 'Neutral', 'Agree', 'Strongly Agree'];
+            return labels[value - 1];
+        }
+
+        function submitAnswer() {
+            const selectedAnswer = document.querySelector('input[name="answer"]:checked');
+            if (selectedAnswer) {
+                const question = assessments[currentAssessment][currentQuestionIndex];
+                const score = parseInt(selectedAnswer.value);
+                answers[question.trait] = (answers[question.trait] || 0) + (question.reversed ? 6 - score : score);
+                
+                currentQuestionIndex++;
+                if (currentQuestionIndex < assessments[currentAssessment].length) {
+                    showQuestion();
+                } else {
+                    showResults();
+                }
+            } else {
+                alert('Please select an answer before proceeding.');
+            }
+        }
+
+        function updateProgressBar() {
+            const progressBar = document.getElementById('progressBar');
+            const progress = ((currentQuestionIndex + 1) / assessments[currentAssessment].length) * 100;
+            progressBar.style.width = `${progress}%`;
+            progressBar.textContent = `${Math.round(progress)}%`;
+        }
+
+        function showResults() {
+            document.getElementById('assessmentQuestions').classList.add('hidden');
+            document.getElementById('progressBarContainer').classList.add('hidden');
+            document.getElementById('results').classList.remove('hidden');
+            document.getElementById('resultsChart').classList.remove('hidden');
+
+            const traits = Object.keys(answers);
+            const scores = traits.map(trait => {
+                const maxScore = assessments[currentAssessment].filter(q => q.trait === trait).length * 5;
+                return (answers[trait] / maxScore) * 100;
             });
 
-            const submitButton = document.createElement('button');
-            submitButton.textContent = 'Submit';
-            submitButton.onclick = () => calculateResults(assessmentId, questions.length);
-            assessmentQuestions.appendChild(submitButton);
+            const resultsContainer = document.getElementById('results');
+            resultsContainer.innerHTML = `
+                <h2>Your Results</h2>
+                ${traits.map((trait, index) => `
+                    <p>${trait}: ${scores[index].toFixed(2)}% 
+                    <span class="trait-explanation" title="${getTraitExplanation(trait)}">ℹ️</span></p>
+                `).join('')}
+                <button onclick="resetAssessment()">Take Another Assessment</button>
+                <button onclick="exportResults()">Export Results</button>
+            `;
+
+            createChart(traits, scores);
         }
 
-        function getQuestions(assessmentId) {
-            // This is a simplified version. In a real app, you'd have more questions for each assessment.
-            const questions = {
-                sdt3: [
-                    "It's not wise to tell your secrets.",
-                    "I like to use clever manipulation to get my way.",
-                    "Whatever it takes, you must get the important people on your side.",
-                    "I tend to want others to admire me.",
-                    "I tend to lack remorse."
-                ],
-                dirtyDozen: [
-                    "I tend to manipulate others to get my way.",
-                    "I have used deceit or lied to get my way.",
-                    "I tend to exploit others towards my own end.",
-                    "I tend to lack remorse.",
-                    "I tend to be unconcerned with the morality of my actions."
-                ],
-                sdt4: [
-                    "It's not wise to tell your secrets.",
-                    "I like to use clever manipulation to get my way.",
-                    "I tend to want others to admire me.",
-                    "People who mess with me always regret it.",
-                    "I enjoy seeing people hurt."
-                ],
-                machIV: [
-                    "Never tell anyone the real reason you did something unless it is useful to do so.",
-                    "The best way to handle people is to tell them what they want to hear.",
-                    "One should take action only when sure it is morally right.",
-                    "Most people are basically good and kind.",
-                    "It is safest to assume that all people have a vicious streak and it will come out when they are given a chance."
-                ]
+        function getTraitExplanation(trait) {
+            const explanations = {
+                'Machiavellianism': 'Tendency to manipulate and exploit others for personal gain.',
+                'Narcissism': 'Excessive self-love, grandiosity, and need for admiration.',
+                'Psychopathy': 'Lack of empathy, impulsivity, and antisocial behavior.',
+                'Sadism': 'Deriving pleasure from inflicting pain or humiliation on others.',
+                'Depression': 'Persistent feelings of sadness, hopelessness, and loss of interest in activities.',
+                'Anxiety': 'Excessive worry, fear, and unease about everyday situations.',
+                'Paranoia': 'Irrational and persistent thoughts of suspicion and mistrust towards others.',
+                'Schizotypal Symptoms': 'Unusual perceptions, beliefs, and behaviors that may indicate a disconnection from reality.',
+                'Obsessive-Compulsive Symptoms': 'Recurring, intrusive thoughts and repetitive behaviors aimed at reducing anxiety.',
+                'Honesty-Humility': 'Tendency to be fair and genuine in dealing with others.',
+                'Emotionality': 'Tendency to experience fear, anxiety, dependence, and sentimentality.',
+                'Extraversion': 'Tendency to be sociable, lively, and cheerful.',
+                'Agreeableness': 'Tendency to be forgiving, gentle, and patient.',
+                'Conscientiousness': 'Tendency to be organized, diligent, and careful.',
+                'Openness to Experience': 'Appreciation for art, emotion, adventure, unusual ideas, imagination, and curiosity.',
+                'Neuroticism': 'Tendency to experience negative emotions easily, such as anxiety, anger, and depression.'
             };
-            return questions[assessmentId];
+            return explanations[trait] || 'No explanation available.';
         }
 
-        function calculateResults(assessmentId, questionCount) {
-            let total = 0;
-            for (let i = 0; i < questionCount; i++) {
-                const selectedValue = document.querySelector(`input[name="q${i}"]:checked`);
-                if (selectedValue) {
-                    total += parseInt(selectedValue.value);
+        function createChart(traits, scores) {
+            const ctx = document.getElementById('resultsChart').getContext('2d');
+            new Chart(ctx, {
+                type: 'radar',
+                data: {
+                    labels: traits,
+                    datasets: [{
+                        label: 'Your Scores',
+                        data: scores,
+                        backgroundColor: 'rgba(255, 99, 132, 0.2)',
+                        borderColor: 'rgb(255, 99, 132)',
+                        pointBackgroundColor: 'rgb(255, 99, 132)',
+                        pointBorderColor: '#fff',
+                        pointHoverBackgroundColor: '#fff',
+                        pointHoverBorderColor: 'rgb(255, 99, 132)'
+                    }]
+                },
+                options: {
+                    elements: {
+                        line: {
+                            borderWidth: 3
+                        }
+                    },
+                    scales: {
+                        r: {
+                            angleLines: {
+                                display: false
+                            },
+                            suggestedMin: 0,
+                            suggestedMax: 100
+                        }
+                    }
                 }
-            }
-            const average = total / questionCount;
-            
-            const resultsDiv = document.getElementById('results');
-            resultsDiv.innerHTML = `<h3>Results for ${assessmentId.toUpperCase()}</h3>
-                                    <p>Your score: ${average.toFixed(2)} out of 5</p>
-                                    <p>Interpretation: This is a simplified score and should not be considered a clinical assessment. For a proper evaluation, please consult a mental health professional.</p>`;
-            resultsDiv.classList.remove('hidden');
+            });
         }
 
-        // Show SDT3 assessment by default
-        showAssessment('sdt3');
+        function resetAssessment() {
+            document.getElementById('results').classList.add('hidden');
+            document.getElementById('resultsChart').classList.add('hidden');
+            document.getElementById('assessments').classList.remove('hidden');
+            currentAssessment = '';
+            currentQuestionIndex = 0;
+            answers = {};
+        }
+
+        function exportResults() {
+            const exportFormat = prompt("Choose export format (txt or csv):", "txt");
+            if (exportFormat === "txt" || exportFormat === "csv") {
+                const content = generateExportContent(exportFormat);
+                const blob = new Blob([content], { type: `text/${exportFormat}` });
+                const a = document.createElement("a");
+                a.href = URL.createObjectURL(blob);
+                a.download = `dark_triad_results.${exportFormat}`;
+                a.click();
+            } else {
+                alert("Invalid format. Please choose 'txt' or 'csv'.");
+            }
+        }
+
+        function generateExportContent(format) {
+            const traits = Object.keys(answers);
+            const scores = traits.map(trait => {
+                const maxScore = assessments[currentAssessment].filter(q => q.trait === trait).length * 5;
+                return (answers[trait] / maxScore) * 100;
+            });
+
+            if (format === "txt") {
+                let content = `Dark Triad Assessment Results\n`;
+                content += `Assessment: ${currentAssessment}\n\n`;
+                traits.forEach((trait, index) => {
+                    content += `${trait}: ${scores[index].toFixed(2)}%\n`;
+                });
+                return content;
+            } else if (format === "csv") {
+                let content = "Trait,Score\n";
+                traits.forEach((trait, index) => {
+                    content += `${trait},${scores[index].toFixed(2)}\n`;
+                });
+                return content;
+            }
+        }
     </script>
 </body>
 </html>
