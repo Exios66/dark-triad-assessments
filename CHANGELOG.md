@@ -35,6 +35,7 @@
   - Descriptive Statistics (mean, median, mode, std, min, max)
 - Enhanced data visualization for new statistical analyses
 - New "History and Background" section providing information on the Dark Triad concept
+- Comprehensive historical analysis and context in the "History and Background" section
 - Cyberpunk-inspired color scheme for both light and dark modes
 
 ### Changed

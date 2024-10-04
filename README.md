@@ -34,7 +34,7 @@ This web application provides various psychological assessments related to the D
 - Footer with links to repository wiki (https://github.com/Exios66/dark-triad-assessments/wiki) and scientific articles
 - Modal window displaying relevant scientific articles for each assessment
 - Cyberpunk-inspired color scheme with dynamic light and dark modes
-- "History and Background" section providing context on the Dark Triad concept
+- "History and Background" section providing comprehensive context on the Dark Triad concept, including historical development, key figures, and research milestones
 
 ## Recent Updates
 
@@ -57,6 +57,7 @@ This web application provides various psychological assessments related to the D
 - Added "History and Background" section
 - Implemented a new cyberpunk-inspired color scheme
 - Enhanced UI with a more modern and sleek appearance
+- Enhanced "History and Background" section with detailed historical analysis and context for the Dark Triad concept
 
 ## Usage
 
