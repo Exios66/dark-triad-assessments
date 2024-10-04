@@ -1,7 +1,4 @@
-import { ASSESSMENT_TYPES, SDT4_QUESTIONS, DIRTY_DOZEN_QUESTIONS, SECS_QUESTIONS, SBA_QUESTIONS } from '../utils/constants';
-
-// This is a placeholder for future API integration
-const API_BASE_URL = 'https://api.example.com';
+import { ASSESSMENT_TYPES, SDT4_QUESTIONS, DIRTY_DOZEN_QUESTIONS, SECS_QUESTIONS, SBA_QUESTIONS, TRAIT_TYPES } from '../utils/constants';
 
 export const fetchQuestions = async (assessmentType) => {
   // In a real application, this would make an API call
@@ -19,6 +16,7 @@ export const getQuestions = (assessmentType) => {
   switch (assessmentType) {
     case ASSESSMENT_TYPES.SDT3:
       // ... (existing SDT3 questions)
+      break;
     case ASSESSMENT_TYPES.SDT4:
       return SDT4_QUESTIONS;
     case ASSESSMENT_TYPES.DIRTY_DOZEN:
@@ -37,6 +35,7 @@ export const calculateResults = (assessmentType, answers) => {
   switch (assessmentType) {
     case ASSESSMENT_TYPES.SDT3:
       // ... (existing SDT3 calculation)
+      break;
     case ASSESSMENT_TYPES.SDT4:
       const traits = {
         [TRAIT_TYPES.MACHIAVELLIANISM]: [1, 2, 3, 4, 5, 6, 7],
