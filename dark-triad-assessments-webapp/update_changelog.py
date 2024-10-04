@@ -27,20 +27,23 @@ def increment_version(version):
 
 def get_commit_messages():
     try:
-        # Get the last version from the changelog
         current_version = get_current_version()
         print(f"Current version from changelog: {current_version}")
 
-        # Get all tags
         all_tags = check_output(['git', 'tag']).decode().split()
         print(f"All tags: {all_tags}")
 
-        if current_version in all_tags:
-            print(f"Found tag for version {current_version}")
-            last_version_hash = check_output(['git', 'rev-list', '-n', '1', current_version]).decode().strip()
+        if all_tags:
+            if current_version in all_tags:
+                print(f"Found tag for version {current_version}")
+                last_version_hash = check_output(['git', 'rev-list', '-n', '1', current_version]).decode().strip()
+            else:
+                print(f"No tag found for version {current_version}. Using latest tag.")
+                latest_tag = all_tags[-1]
+                last_version_hash = check_output(['git', 'rev-list', '-n', '1', latest_tag]).decode().strip()
             commit_messages = check_output(['git', 'log', f'{last_version_hash}..HEAD', '--pretty=format:%s']).decode().split('\n')
         else:
-            print(f"No tag found for version {current_version}. Getting all commit messages.")
+            print("No tags found. Getting all commit messages.")
             commit_messages = check_output(['git', 'log', '--pretty=format:%s']).decode().split('\n')
 
         print(f"Number of commit messages: {len(commit_messages)}")
