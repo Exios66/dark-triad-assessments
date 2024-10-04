@@ -1,20 +1,254 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
+<head>
     <meta charset="utf-8" />
     <link rel="icon" href="%PUBLIC_URL%/favicon.ico" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="theme-color" content="#000000" />
-    <meta
-      name="description"
-      content="Dark Triad Assessments Web Application"
-    />
+    <meta name="description" content="Dark Triad Assessments Web Application" />
     <link rel="apple-touch-icon" href="%PUBLIC_URL%/logo192.png" />
     <link rel="manifest" href="%PUBLIC_URL%/manifest.json" />
     <title>Dark Triad Assessments</title>
-  </head>
-  <body>
+    <style>
+        :root {
+            --bg-color: #f0f0f0;
+            --text-color: #333;
+            --primary-color: #4a90e2;
+            --secondary-color: #e74c3c;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            transition: background-color 0.3s, color 0.3s;
+            margin: 0;
+            padding: 0;
+        }
+
+        .dark-mode {
+            --bg-color: #333;
+            --text-color: #f0f0f0;
+            --primary-color: #64b5f6;
+            --secondary-color: #ff7675;
+        }
+
+        header {
+            background-color: var(--primary-color);
+            color: white;
+            text-align: center;
+            padding: 1rem;
+        }
+
+        nav {
+            background-color: #333;
+            padding: 0.5rem;
+        }
+
+        nav ul {
+            list-style-type: none;
+            padding: 0;
+            margin: 0;
+            display: flex;
+            justify-content: center;
+        }
+
+        nav ul li {
+            margin: 0 1rem;
+        }
+
+        nav ul li a {
+            color: white;
+            text-decoration: none;
+            font-weight: bold;
+        }
+
+        main {
+            max-width: 800px;
+            margin: 2rem auto;
+            padding: 1rem;
+        }
+
+        .assessment {
+            background-color: white;
+            border-radius: 5px;
+            padding: 1rem;
+            margin-bottom: 1rem;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s;
+        }
+
+        .assessment:hover {
+            transform: translateY(-5px);
+        }
+
+        button {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 3px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        button:hover {
+            background-color: var(--secondary-color);
+        }
+
+        #darkModeToggle {
+            position: fixed;
+            top: 1rem;
+            right: 1rem;
+            z-index: 1000;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        #results {
+            background-color: #f9f9f9;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            padding: 1rem;
+            margin-top: 1rem;
+        }
+    </style>
+</head>
+<body>
     <noscript>You need to enable JavaScript to run this app.</noscript>
-    <div id="root"></div>
-  </body>
+    <div id="root">
+        <header>
+            <h1>Dark Triad Assessments</h1>
+        </header>
+        <button id="darkModeToggle">Toggle Dark Mode</button>
+        <nav>
+            <ul>
+                <li><a href="#" onclick="showAssessment('sdt3')">SDT3</a></li>
+                <li><a href="#" onclick="showAssessment('dirtyDozen')">Dirty Dozen</a></li>
+                <li><a href="#" onclick="showAssessment('sdt4')">SDT4</a></li>
+                <li><a href="#" onclick="showAssessment('machIV')">MACH IV</a></li>
+            </ul>
+        </nav>
+        <main>
+            <div id="sdt3" class="assessment hidden">
+                <h2>Short Dark Triad (SDT3)</h2>
+                <p>The SDT3 assesses three personality traits: Machiavellianism, Narcissism, and Psychopathy.</p>
+                <button onclick="startAssessment('sdt3')">Start SDT3 Assessment</button>
+            </div>
+            <div id="dirtyDozen" class="assessment hidden">
+                <h2>Dirty Dozen</h2>
+                <p>The Dirty Dozen is a brief measure of the Dark Triad personality traits.</p>
+                <button onclick="startAssessment('dirtyDozen')">Start Dirty Dozen Assessment</button>
+            </div>
+            <div id="sdt4" class="assessment hidden">
+                <h2>Short Dark Tetrad (SDT4)</h2>
+                <p>The SDT4 measures four dark personality traits: Machiavellianism, Narcissism, Psychopathy, and Sadism.</p>
+                <button onclick="startAssessment('sdt4')">Start SDT4 Assessment</button>
+            </div>
+            <div id="machIV" class="assessment hidden">
+                <h2>MACH IV</h2>
+                <p>The MACH IV is a test of Machiavellianism, measuring a person's willingness to manipulate others.</p>
+                <button onclick="startAssessment('machIV')">Start MACH IV Assessment</button>
+            </div>
+            <div id="assessmentQuestions" class="hidden"></div>
+            <div id="results" class="hidden"></div>
+        </main>
+    </div>
+    <script>
+        const darkModeToggle = document.getElementById('darkModeToggle');
+        const body = document.body;
+
+        darkModeToggle.addEventListener('click', () => {
+            body.classList.toggle('dark-mode');
+        });
+
+        function showAssessment(assessmentId) {
+            const assessments = document.querySelectorAll('.assessment');
+            assessments.forEach(assessment => assessment.classList.add('hidden'));
+            document.getElementById(assessmentId).classList.remove('hidden');
+        }
+
+        function startAssessment(assessmentId) {
+            const assessmentQuestions = document.getElementById('assessmentQuestions');
+            assessmentQuestions.innerHTML = '';
+            assessmentQuestions.classList.remove('hidden');
+
+            const questions = getQuestions(assessmentId);
+            questions.forEach((question, index) => {
+                const questionElement = document.createElement('div');
+                questionElement.innerHTML = `
+                    <p>${index + 1}. ${question}</p>
+                    <input type="radio" name="q${index}" value="1"> Strongly Disagree
+                    <input type="radio" name="q${index}" value="2"> Disagree
+                    <input type="radio" name="q${index}" value="3"> Neutral
+                    <input type="radio" name="q${index}" value="4"> Agree
+                    <input type="radio" name="q${index}" value="5"> Strongly Agree
+                `;
+                assessmentQuestions.appendChild(questionElement);
+            });
+
+            const submitButton = document.createElement('button');
+            submitButton.textContent = 'Submit';
+            submitButton.onclick = () => calculateResults(assessmentId, questions.length);
+            assessmentQuestions.appendChild(submitButton);
+        }
+
+        function getQuestions(assessmentId) {
+            // This is a simplified version. In a real app, you'd have more questions for each assessment.
+            const questions = {
+                sdt3: [
+                    "It's not wise to tell your secrets.",
+                    "I like to use clever manipulation to get my way.",
+                    "Whatever it takes, you must get the important people on your side.",
+                    "I tend to want others to admire me.",
+                    "I tend to lack remorse."
+                ],
+                dirtyDozen: [
+                    "I tend to manipulate others to get my way.",
+                    "I have used deceit or lied to get my way.",
+                    "I tend to exploit others towards my own end.",
+                    "I tend to lack remorse.",
+                    "I tend to be unconcerned with the morality of my actions."
+                ],
+                sdt4: [
+                    "It's not wise to tell your secrets.",
+                    "I like to use clever manipulation to get my way.",
+                    "I tend to want others to admire me.",
+                    "People who mess with me always regret it.",
+                    "I enjoy seeing people hurt."
+                ],
+                machIV: [
+                    "Never tell anyone the real reason you did something unless it is useful to do so.",
+                    "The best way to handle people is to tell them what they want to hear.",
+                    "One should take action only when sure it is morally right.",
+                    "Most people are basically good and kind.",
+                    "It is safest to assume that all people have a vicious streak and it will come out when they are given a chance."
+                ]
+            };
+            return questions[assessmentId];
+        }
+
+        function calculateResults(assessmentId, questionCount) {
+            let total = 0;
+            for (let i = 0; i < questionCount; i++) {
+                const selectedValue = document.querySelector(`input[name="q${i}"]:checked`);
+                if (selectedValue) {
+                    total += parseInt(selectedValue.value);
+                }
+            }
+            const average = total / questionCount;
+            
+            const resultsDiv = document.getElementById('results');
+            resultsDiv.innerHTML = `<h3>Results for ${assessmentId.toUpperCase()}</h3>
+                                    <p>Your score: ${average.toFixed(2)} out of 5</p>
+                                    <p>Interpretation: This is a simplified score and should not be considered a clinical assessment. For a proper evaluation, please consult a mental health professional.</p>`;
+            resultsDiv.classList.remove('hidden');
+        }
+
+        // Show SDT3 assessment by default
+        showAssessment('sdt3');
+    </script>
+</body>
 </html>
