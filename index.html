@@ -458,6 +458,7 @@
         let currentAssessment = '';
         let currentQuestionIndex = 0;
         let answers = {};
+        let autoAdvanceTimer;
 
         function startAssessment(assessment) {
             currentAssessment = assessment;
@@ -481,16 +482,39 @@
                     <div class="options">
                         ${[1, 2, 3, 4, 5].map(value => `
                             <label>
-                                <input type="radio" name="answer" value="${value}">
+                                <input type="radio" name="answer" value="${value}" onchange="resetAutoAdvance()">
                                 ${value} - ${getScaleLabel(value)}
                             </label>
                         `).join('')}
                     </div>
                 </div>
                 <button onclick="submitAnswer()">Next</button>
+                <div id="autoAdvanceTimer"></div>
             `;
 
             updateProgressBar();
+            startAutoAdvance();
+        }
+
+        function startAutoAdvance() {
+            let timeLeft = 4;
+            const timerDisplay = document.getElementById('autoAdvanceTimer');
+            timerDisplay.textContent = `Auto-advancing in ${timeLeft} seconds...`;
+
+            autoAdvanceTimer = setInterval(() => {
+                timeLeft--;
+                if (timeLeft > 0) {
+                    timerDisplay.textContent = `Auto-advancing in ${timeLeft} seconds...`;
+                } else {
+                    clearInterval(autoAdvanceTimer);
+                    submitAnswer();
+                }
+            }, 1000);
+        }
+
+        function resetAutoAdvance() {
+            clearInterval(autoAdvanceTimer);
+            startAutoAdvance();
         }
 
         function getScaleLabel(value) {
@@ -499,6 +523,7 @@
         }
 
         function submitAnswer() {
+            clearInterval(autoAdvanceTimer);
             const selectedAnswer = document.querySelector('input[name="answer"]:checked');
             if (selectedAnswer) {
                 const question = assessments[currentAssessment][currentQuestionIndex];
@@ -513,6 +538,7 @@
                 }
             } else {
                 alert('Please select an answer before proceeding.');
+                startAutoAdvance();
             }
         }
 
