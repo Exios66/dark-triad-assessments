@@ -1,5 +1,6 @@
 import os
 import re
+import sqlite3
 from datetime import datetime
 
 # Get the directory of the script
